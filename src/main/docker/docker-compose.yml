@@ -1,0 +1,48 @@
+version: '3'
+
+volumes:
+  produktakte-db:
+    driver: local
+
+services:
+  postgres:
+    image: postgres
+    restart: always
+    #container_name: pa-postgres
+    hostname: postgres
+    volumes:
+      - produktakte-db:/var/lib/postgresql/data
+    expose:
+      - 5432
+    environment:
+      - POSTGRES_DB=prod
+      - POSTGRES_USER=prod
+      - POSTGRES_PASSWORD='my-great-password'
+      - POSTGRES_PORT=5432
+    networks:
+      prodnet:
+          
+  app:
+    image: auch/produktakte:1.0.0-SNAPSHOT
+    #container_name: pa-app
+    hostname: produktakte
+    depends_on:
+       - postgres
+    expose:
+      - 28086
+    ports:
+      - 28086:8080
+    environment:
+      - PROD_DB=jdbc:postgresql://postgres:5432/prod
+      - PROD_DB_KIND=postgresql
+      - PROD_DB_USER=prod
+      - PROD_DB_PASSWORD='my-great-password'
+      - JDBC_DRIVER=org.postgresql.Driver
+    links:
+      - postgres
+    networks:
+      prodnet:
+
+networks:
+  prodnet:
+  
