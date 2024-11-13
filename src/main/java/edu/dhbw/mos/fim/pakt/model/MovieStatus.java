@@ -20,6 +20,10 @@ public class MovieStatus {
     @JoinColumn(name = "uid", referencedColumnName = "uid", nullable = false)
     private User uid;
 
+    @ManyToOne
+    @JoinColumn(name = "reviewId", referencedColumnName = "id")
+    private Review review;
+
     @Column(nullable = false)
     private boolean favorite = false;
 
@@ -30,14 +34,6 @@ public class MovieStatus {
     private boolean watched = false;
 
     public MovieStatus() {}
-
-    public MovieStatus(User uid, Long movieId, boolean favorite, boolean watchlist, boolean watched, Long reviewId) {
-        this.uid = uid;
-        this.movieId = movieId;
-        this.favorite = favorite;
-        this.watchlist = watchlist;
-        this.watched = watched;
-    }
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -56,4 +52,7 @@ public class MovieStatus {
 
     public boolean isWatched() { return watched; }
     public void setWatched(boolean watched) { this.watched = watched; }
+
+    public Review getReview() { return review; }
+    public void setReview(Review review) { this.review = review; }
 }

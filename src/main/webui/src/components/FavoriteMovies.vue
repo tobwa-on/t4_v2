@@ -37,34 +37,33 @@
 <script setup>
 import { onMounted, ref } from 'vue';
 import { getImageUrl, getMovieDetails } from '@/services/tmdbService.js';
-import { getFavoriteMovies } from "@/services/favoriteService.js";
+import { getFavoriteMovies } from "@/services/movieStatusService.js";
 import UserService from "@/services/userService.js";
 
 const favouriteMovies = ref([]);
 
 const fetchMovieDetails = async () => {
   try {
-    const user = UserService.getUser(); // User abrufen
-    const uid = user?.upn; // UID dynamisch aus User abrufen
+    const user = UserService.getUser();
+    const uid = user?.upn;
 
     if (!uid) {
       console.error("Kein Benutzer angemeldet oder keine UID verfügbar.");
       return;
     }
 
-    const favorites = await getFavoriteMovies(uid); // Ruft die Favoriten ab
-    if (favorites && favorites.length > 0) { // Prüft, ob favorites nicht leer ist
-      console.log("Test", favorites)
+    const favorites = await getFavoriteMovies(uid);
+    if (favorites && favorites.length > 0) {
       const movieDetailsPromises = favorites.map(favorite => getMovieDetails(favorite.movieId));
-      const movies = await Promise.all(movieDetailsPromises); // Holt alle Details parallel
-      favouriteMovies.value = movies.map(response => response.data); // Speichert die Daten in favouriteMovies
+      const movies = await Promise.all(movieDetailsPromises);
+      favouriteMovies.value = movies.map(response => response.data);
     }
   } catch (error) {
     console.error("Fehler beim Abrufen der Filmdetails:", error);
   }
 };
 
-onMounted(fetchMovieDetails); // Ruft die Funktion beim Laden der Komponente auf
+onMounted(fetchMovieDetails);
 </script>
 
 <style scoped>

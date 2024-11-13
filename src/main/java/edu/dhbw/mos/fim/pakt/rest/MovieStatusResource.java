@@ -20,27 +20,6 @@ public class MovieStatusResource extends BasicRestCrudResource<MovieStatus, Movi
     @Inject
     private MovieStatusRepository movieStatusRepository;
 
-    @Override
-    @Transactional
-    public MovieStatus add(MovieStatus movieStatus) {
-        MovieStatus existingStatus = movieStatusRepository.findByUserIdAndMovieId(movieStatus.getUid(), movieStatus.getMovieId());
-        if (existingStatus != null) {
-            throw new WebApplicationException("Movie status already exists", Response.Status.CONFLICT);
-        }
-
-        return super.add(movieStatus);
-    }
-
-    @GET
-    @Path("/user/{uid}/movie/{movieId}/exists")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response isMovieStatus(@PathParam("uid") String uid, @PathParam("movieId") Long movieId) {
-        User user = userRepository.findByUid(uid);
-        MovieStatus movieStatus = movieStatusRepository.findByUserIdAndMovieId(user, movieId);
-        boolean exists = (movieStatus != null);
-        return Response.ok("{\"exists\":" + exists + "}").build();
-    }
-
     @DELETE
     @Path("/user/{uid}/movie/{movieId}")
     @Transactional
@@ -55,7 +34,7 @@ public class MovieStatusResource extends BasicRestCrudResource<MovieStatus, Movi
     }
 
     @GET
-    @Path("/user/{uid}")
+    @Path("/user={uid}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getMovieStatusesByUserId(@PathParam("uid") String uid) {
         User user = userRepository.findByUid(uid);
@@ -64,17 +43,14 @@ public class MovieStatusResource extends BasicRestCrudResource<MovieStatus, Movi
     }
 
     @GET
-    @Path("/user/{uid}/movie/{movieId}")
+    @Path("/user={uid}/movie={movieId}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getMovieStatus(@PathParam("uid") String uid, @PathParam("movieId") Long movieId) {
-
         User user = userRepository.findByUid(uid);
         MovieStatus movieStatus = movieStatusRepository.findByUserIdAndMovieId(user, movieId);
-
         if (movieStatus == null) {
-            return Response.status(Response.Status.NOT_FOUND).entity("Movie status not found").build();
+            return Response.status(Response.Status.NO_CONTENT).entity("Movie status not found").build();
         }
-
         return Response.ok()
                 .entity(new StatusResponse(movieStatus.isFavorite(), movieStatus.isWatchlist(), movieStatus.isWatched()))
                 .build();
@@ -85,37 +61,33 @@ public class MovieStatusResource extends BasicRestCrudResource<MovieStatus, Movi
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Transactional
-    public Response updateMovieStatus( @PathParam("uid") String uid, @PathParam("movieId") Long movieId,
-            StatusUpdateRequest statusUpdateRequest) {
-
-        try {
-            User user = userRepository.findByUid(uid);
-            MovieStatus movieStatus = movieStatusRepository.findByUserIdAndMovieId(user, movieId);
-
-            if (movieStatus == null) {
-                movieStatus = new MovieStatus(user, movieId,
-                        statusUpdateRequest.favorite != null && statusUpdateRequest.favorite,
-                        statusUpdateRequest.watchlist != null && statusUpdateRequest.watchlist,
-                        statusUpdateRequest.watched != null && statusUpdateRequest.watched,
-                        null);
-                movieStatusRepository.persist(movieStatus);
-            } else {
-                if (statusUpdateRequest.favorite != null) {
-                    movieStatus.setFavorite(statusUpdateRequest.favorite);
-                }
-                if (statusUpdateRequest.watchlist != null) {
-                    movieStatus.setWatchlist(statusUpdateRequest.watchlist);
-                }
-                if (statusUpdateRequest.watched != null) {
-                    movieStatus.setWatched(statusUpdateRequest.watched);
-                }
-            }
-
-            return Response.ok(new StatusResponse(movieStatus.isFavorite(), movieStatus.isWatchlist(), movieStatus.isWatched())).build();
-
-        } catch (Exception e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Fehler beim Aktualisieren des Filmstatus").build();
+    public Response updateMovieStatus(@PathParam("uid") String uid, @PathParam("movieId") Long movieId, StatusUpdateRequest statusUpdateRequest) {
+        User user = userRepository.findByUid(uid);
+        if (user == null) {
+            return Response.status(Response.Status.NOT_FOUND).entity("User not found").build();
         }
+
+        MovieStatus movieStatus = movieStatusRepository.findByUserIdAndMovieId(user, movieId);
+
+        if (movieStatus == null) {
+            movieStatus = new MovieStatus();
+            movieStatus.setUid(user);
+            movieStatus.setMovieId(movieId);
+        }
+
+        // Update or initialize the status fields
+        if (statusUpdateRequest.favorite != null) {
+            movieStatus.setFavorite(statusUpdateRequest.favorite);
+        }
+        if (statusUpdateRequest.watchlist != null) {
+            movieStatus.setWatchlist(statusUpdateRequest.watchlist);
+        }
+        if (statusUpdateRequest.watched != null) {
+            movieStatus.setWatched(statusUpdateRequest.watched);
+        }
+
+        movieStatusRepository.persist(movieStatus);
+        return Response.ok(new StatusResponse(movieStatus.isFavorite(), movieStatus.isWatchlist(), movieStatus.isWatched())).build();
     }
 
 

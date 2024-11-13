@@ -2,7 +2,7 @@ import apiService from '@/services/apiService.js';
 
 export const getFavoriteMovies = async (uid) => {
     try {
-        const response = await apiService.get(`/moviestatus/user/${uid}`);
+        const response = await apiService.get(`/moviestatus/user=${uid}`);
         return response.data.filter(movieStatus => movieStatus.favorite);
     } catch (error) {
         throw error;
@@ -11,7 +11,7 @@ export const getFavoriteMovies = async (uid) => {
 
 export const getMovieStatus = async (uid, movieId) => {
     try {
-        const response = await apiService.get(`/moviestatus/user/${uid}/movie/${movieId}`);
+        const response = await apiService.get(`/moviestatus/user=${uid}/movie=${movieId}`);
         const { favorite, watchlist, watched } = response.data;
         return {
             favorite,

@@ -2,7 +2,7 @@ import apiService from '@/services/apiService.js';
 
 export async function getReview(userId, movieId) {
     try {
-        const response = await apiService.get(`/reviews/user/${userId}/movie/${movieId}`);
+        const response = await apiService.get(`/reviews/user=${userId}/movie=${movieId}`);
         if (response.status === 200) {
             return response.data;
         }
@@ -28,7 +28,7 @@ export const saveOrUpdateReview = async (uid, movieId, rating, reviewText) => {
 
 export async function getAllReviews(movieId) {
     try {
-        const response = await apiService.get(`/reviews/movie/${movieId}`);
+        const response = await apiService.get(`/reviews/movie=${movieId}`);
         if (response.status === 200) {
             return response.data;
         }

@@ -19,7 +19,7 @@
               <v-btn flat icon @click="handleToggleWatched">
                 <v-icon>{{ isWatched ? 'mdi-eye' : 'mdi-eye-outline' }}</v-icon>
               </v-btn>
-              <div>{{ isWatched ? 'Gesehen' : 'Ansehen' }}</div>
+              <div>{{ isWatched ? 'Gesehen' : 'Gesehen' }}</div>
             </v-col>
 
             <v-col cols="auto" class="text-center">
@@ -74,6 +74,16 @@
                 <v-divider></v-divider>
                 <v-list lines="one">
                   <v-list-item
+                      v-if="reviews === null || reviews.length === 0"
+                  >
+                    <v-row  no-gutters align="center" justify="space-between">
+                      <v-col cols="auto">
+                        <v-list-item-subtitle>Keine Rezensionen vorhanden</v-list-item-subtitle>
+                      </v-col>
+                    </v-row>
+                  </v-list-item>
+                  <v-list-item
+                      v-else
                       v-for="(review, index) in reviews" :key="index"
                   >
                     <v-row no-gutters align="center" justify="space-between">
@@ -112,7 +122,7 @@
 <script setup>
 import {defineEmits, ref, watch} from 'vue';
 import {getImageUrl} from '@/services/tmdbService.js';
-import {getMovieStatus, updateMovieStatus} from '@/services/favoriteService';
+import {getMovieStatus, updateMovieStatus} from '@/services/movieStatusService.js';
 import UserService from "@/services/userService.js";
 import {getAllReviews, getReview, saveOrUpdateReview} from "@/services/reviewService.js";
 
@@ -209,8 +219,10 @@ const loadReviews = async () => {
   try {
     const allReviews = await getAllReviews(props.movieDetails.id);
     reviews.value = allReviews.filter(review => review.rating !== 0);
+    console.log(reviews.value.length)
   } catch (error) {
-    console.error("Fehler beim Laden der Rezensionen:", error);
+    console.log("Fehler", reviews.value)
+    reviews.value = null;
   }
 };
 

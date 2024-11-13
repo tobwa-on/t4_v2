@@ -39,26 +39,26 @@ public class ReviewResource {
     }
 
     @GET
-    @Path("/user/{uid}/movie/{movieId}")
+    @Path("/user={uid}/movie={movieId}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getReviewByUserAndMovie(@PathParam("uid") String uid, @PathParam("movieId") Long movieId) {
         User user = userRepository.findByUid(uid);
 
         Review review = reviewRepository.findByUserIdAndMovieId(user, movieId);
         if (review == null) {
-            return Response.status(Response.Status.NOT_FOUND).build();
+            return Response.status(Response.Status.NO_CONTENT).build();
         }
         return Response.ok(review).build();
     }
 
     @GET
-    @Path("/movie/{movieId}")
+    @Path("/movie={movieId}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAllReviews(@PathParam("movieId") Long movieId) {
         List<Review> reviews = reviewRepository.findByMovieId(movieId);
 
         if (reviews == null || reviews.isEmpty()) {
-            return Response.status(Response.Status.NOT_FOUND).build();
+            return Response.status(Response.Status.NO_CONTENT).build();
         }
 
         return Response.ok(reviews).build();
