@@ -57,13 +57,12 @@ async function decodeUserData() {
         window.location.reload();
       }
 
-      /*
-      const user = UserService.getUserRole();
-      if (user.role === admin) {
-        adminLoggedIn.value = true;
+      if (Object.keys(user).length) {
+        const userRoleResponse = await UserService.getUserRole(decoded.upn);
+        if (userRoleResponse.includes("admin")) {
+          adminLoggedIn.value = true;
+        }
       }
-
-       */
 
     } catch (error) {
       console.error(error);

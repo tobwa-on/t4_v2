@@ -24,7 +24,7 @@ public class CreateUsers
 		if (userRepo.count() == 0)
 		{
 			userRepo.createAndPersist("admin", "on23", Set.of("user", "admin"));
-			userRepo.createAndPersist("tobias", "on23", Set.of("user", "admin"));
+			userRepo.createAndPersist("tobias", "on23", Set.of("user"));
 			userRepo.createAndPersist("test", "on23", Set.of("user", "admin"));
 			userRepo.createAndPersist("test2", "on23", Set.of("user", "admin"));
 

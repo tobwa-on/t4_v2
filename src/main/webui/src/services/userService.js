@@ -3,7 +3,7 @@ import apiService from "@/services/apiService.js";
 
 class UserService {
     constructor() {
-        this.user = {}; // Standardmäßig leeres Objekt
+        this.user = {};
         this.decodeUserData();
     }
 
@@ -31,18 +31,17 @@ class UserService {
         return this.user;
     }
 
-    /*
     getUserRole = async (uid) => {
         try {
-            const response = await apiService.post('/reviews/saveOrUpdate', { uid, movieId, rating, reviewText });
-            console.log("Rezension gespeichert oder aktualisiert:", response.data);
+            if (uid !== null) {
+                const response = await apiService.get(`/user/roles`, { params: { uid } });
+                return response.data;
+            }
         } catch (error) {
-            console.error("Fehler beim Speichern oder Aktualisieren der Rezension:", error);
+            console.error("Fehler beim Abrufen der Benutzerrollen:", error);
             throw error;
         }
     };
-
-     */
 
     getUserName() {
         return this.user?.upn || null;
@@ -55,9 +54,5 @@ class UserService {
         window.location.reload();
     }
 }
-
-
-
-
 
 export default new UserService();

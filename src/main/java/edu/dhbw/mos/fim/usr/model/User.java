@@ -24,7 +24,7 @@ public class User
 	private String password;
 
 	@Roles
-	@ManyToMany(mappedBy = "users")
+	@ManyToMany(mappedBy = "users", fetch = FetchType.EAGER)
 	private Set<Role> roles = new HashSet<>();
 
 
@@ -51,6 +51,9 @@ public class User
 		this.password = password;
 	}
 
+	public Set<Role> getRoles() {
+		return roles;
+	}
 
 	public void setRoles(final Set<Role> roles)
 	{
@@ -82,4 +85,6 @@ public class User
 			return false;
 		return true;
 	}
+
+
 }

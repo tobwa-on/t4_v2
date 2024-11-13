@@ -8,22 +8,13 @@ import jakarta.transaction.Transactional;
 @ApplicationScoped
 public class RoleRepository implements PanacheRepository<Role>
 {
-	public Role findByName(final String name)
-	{
-		return find("name", name).firstResult();
-	}
-
 	@Transactional
-	public Role findByNameOrCreateNew(final String name)
-	{
-		Role role = findByName(name);
-
-		if (role == null)
-		{
-			role = new Role(name);
-			persist(role);
+	public Role findByNameOrCreateNew(String roleName) {
+		Role role = find("name", roleName).firstResult();
+		if (role == null) {
+			role = new Role(roleName);
+			persist(role);  // Neue Rolle speichern
 		}
-
 		return role;
 	}
 }

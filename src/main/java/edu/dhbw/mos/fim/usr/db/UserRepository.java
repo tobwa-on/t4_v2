@@ -3,6 +3,7 @@ package edu.dhbw.mos.fim.usr.db;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
+import edu.dhbw.mos.fim.usr.model.Role;
 import edu.dhbw.mos.fim.usr.model.User;
 import io.quarkus.elytron.security.common.BcryptUtil;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
@@ -37,8 +38,12 @@ public class UserRepository implements PanacheRepository<User>
 	{
 		final var dbRoles = roles.stream().map(rs -> roleRepo.findByNameOrCreateNew(rs)).collect(Collectors.toSet());
 		final var user = new User(uid);
-		user.setRoles(dbRoles);
 		user.setPassword(hashPassword(password));
+		// Rollen zu Benutzer hinzufügen und bidirektionale Beziehung setzen
+		for (Role role : dbRoles) {
+			user.getRoles().add(role);   // Rolle dem Benutzer hinzufügen
+			role.getUsers().add(user);   // Benutzer der Rolle hinzufügen
+		}
 		persist(user);
 	}
 

@@ -1,5 +1,6 @@
 package edu.dhbw.mos.fim.usr.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.quarkus.security.jpa.RolesValue;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -23,6 +24,7 @@ public class Role
 	private String name;
 
 	@ManyToMany
+	@JsonIgnore
 	private Set<User> users = new HashSet<>();
 
 	public Role(final String name)
@@ -30,9 +32,7 @@ public class Role
 		this.name = name;
 	}
 
-	public Role()
-	{
-	}
+	public Role() { }
 
 	public long getId()
 	{
