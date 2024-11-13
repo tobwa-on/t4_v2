@@ -2,6 +2,8 @@ package edu.dhbw.mos.fim.pakt.rest;
 
 import edu.dhbw.mos.fim.pakt.db.ReviewRepository;
 import edu.dhbw.mos.fim.pakt.model.Review;
+import edu.dhbw.mos.fim.usr.db.UserRepository;
+import edu.dhbw.mos.fim.usr.model.User;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.*;
@@ -12,6 +14,8 @@ import java.util.List;
 @Path("/reviews")
 public class ReviewResource {
 
+    @Inject
+    UserRepository userRepository;
     @Inject
     private ReviewRepository reviewRepository;
 
@@ -38,14 +42,15 @@ public class ReviewResource {
     @Path("/user/{uid}/movie/{movieId}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getReviewByUserAndMovie(@PathParam("uid") String uid, @PathParam("movieId") Long movieId) {
-        Review review = reviewRepository.findByUserIdAndMovieId(uid, movieId);
+        User user = userRepository.findByUid(uid);
+
+        Review review = reviewRepository.findByUserIdAndMovieId(user, movieId);
         if (review == null) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
         return Response.ok(review).build();
     }
 
-    // Neue Methode: Alle Rezensionen für einen Film zurückgeben
     @GET
     @Path("/movie/{movieId}")
     @Produces(MediaType.APPLICATION_JSON)

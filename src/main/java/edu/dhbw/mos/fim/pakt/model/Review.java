@@ -1,5 +1,6 @@
 package edu.dhbw.mos.fim.pakt.model;
 
+import edu.dhbw.mos.fim.usr.model.User;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
@@ -11,8 +12,9 @@ public class Review {
     private Long id;
 
     @NotNull
-    @Column(length = 128, nullable = false)
-    private String uid;
+    @ManyToOne
+    @JoinColumn(name = "uid", referencedColumnName = "uid", nullable = false)
+    private User uid;
 
     @NotNull
     @Column(nullable = false)
@@ -20,7 +22,7 @@ public class Review {
 
     private Double rating;
 
-    @Column(length = 2000)
+    @Column(length = 3000)
     private String reviewText;
 
     public Review() {}
@@ -33,11 +35,11 @@ public class Review {
         this.id = id;
     }
 
-    public String getUid() {
+    public User getUid() {
         return uid;
     }
 
-    public void setUid(String uid) {
+    public void setUid(User uid) {
         this.uid = uid;
     }
 

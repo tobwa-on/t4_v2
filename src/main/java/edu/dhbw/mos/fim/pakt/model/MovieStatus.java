@@ -1,9 +1,7 @@
 package edu.dhbw.mos.fim.pakt.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import edu.dhbw.mos.fim.usr.model.User;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
 @Entity
@@ -18,8 +16,9 @@ public class MovieStatus {
     private Long movieId;
 
     @NotNull
-    @Column(length = 128, nullable = false)
-    private String uid;
+    @ManyToOne
+    @JoinColumn(name = "uid", referencedColumnName = "uid", nullable = false)
+    private User uid;
 
     @Column(nullable = false)
     private boolean favorite = false;
@@ -32,7 +31,7 @@ public class MovieStatus {
 
     public MovieStatus() {}
 
-    public MovieStatus(String uid, Long movieId, boolean favorite, boolean watchlist, boolean watched, Long reviewId) {
+    public MovieStatus(User uid, Long movieId, boolean favorite, boolean watchlist, boolean watched, Long reviewId) {
         this.uid = uid;
         this.movieId = movieId;
         this.favorite = favorite;
@@ -46,8 +45,8 @@ public class MovieStatus {
     public Long getMovieId() { return movieId; }
     public void setMovieId(Long movieId) { this.movieId = movieId; }
 
-    public String getUid() { return uid; }
-    public void setUid(String uid) { this.uid = uid; }
+    public User getUid() { return uid; }
+    public void setUid(User uid) { this.uid = uid; }
 
     public boolean isFavorite() { return favorite; }
     public void setFavorite(boolean favorite) { this.favorite = favorite; }

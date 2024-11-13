@@ -78,7 +78,7 @@
                   >
                     <v-row no-gutters align="center" justify="space-between">
                       <v-col cols="auto">
-                        <v-list-item-title>{{ review.uid }}</v-list-item-title>
+                        <v-list-item-title>{{ review.uid.uid }}</v-list-item-title>
                         <v-list-item-subtitle>{{ review.reviewText }}</v-list-item-subtitle>
                       </v-col>
                       <v-col cols="auto" class="text-right">

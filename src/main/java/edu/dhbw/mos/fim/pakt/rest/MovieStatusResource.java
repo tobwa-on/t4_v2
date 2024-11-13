@@ -2,6 +2,8 @@ package edu.dhbw.mos.fim.pakt.rest;
 
 import edu.dhbw.mos.fim.pakt.db.MovieStatusRepository;
 import edu.dhbw.mos.fim.pakt.model.MovieStatus;
+import edu.dhbw.mos.fim.usr.db.UserRepository;
+import edu.dhbw.mos.fim.usr.model.User;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.*;
@@ -13,6 +15,8 @@ import java.util.List;
 @Path("/moviestatus")
 public class MovieStatusResource extends BasicRestCrudResource<MovieStatus, MovieStatusRepository> {
 
+    @Inject
+    UserRepository userRepository;
     @Inject
     private MovieStatusRepository movieStatusRepository;
 
@@ -31,7 +35,8 @@ public class MovieStatusResource extends BasicRestCrudResource<MovieStatus, Movi
     @Path("/user/{uid}/movie/{movieId}/exists")
     @Produces(MediaType.APPLICATION_JSON)
     public Response isMovieStatus(@PathParam("uid") String uid, @PathParam("movieId") Long movieId) {
-        MovieStatus movieStatus = movieStatusRepository.findByUserIdAndMovieId(uid, movieId);
+        User user = userRepository.findByUid(uid);
+        MovieStatus movieStatus = movieStatusRepository.findByUserIdAndMovieId(user, movieId);
         boolean exists = (movieStatus != null);
         return Response.ok("{\"exists\":" + exists + "}").build();
     }
@@ -40,7 +45,8 @@ public class MovieStatusResource extends BasicRestCrudResource<MovieStatus, Movi
     @Path("/user/{uid}/movie/{movieId}")
     @Transactional
     public Response removeMovieStatus(@PathParam("uid") String uid, @PathParam("movieId") Long movieId) {
-        MovieStatus movieStatus = movieStatusRepository.findByUserIdAndMovieId(uid, movieId);
+        User user = userRepository.findByUid(uid);
+        MovieStatus movieStatus = movieStatusRepository.findByUserIdAndMovieId(user, movieId);
         if (movieStatus == null) {
             return Response.status(Response.Status.NOT_FOUND).entity("Movie status not found").build();
         }
@@ -60,7 +66,9 @@ public class MovieStatusResource extends BasicRestCrudResource<MovieStatus, Movi
     @Path("/user/{uid}/movie/{movieId}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getMovieStatus(@PathParam("uid") String uid, @PathParam("movieId") Long movieId) {
-        MovieStatus movieStatus = movieStatusRepository.findByUserIdAndMovieId(uid, movieId);
+
+        User user = userRepository.findByUid(uid);
+        MovieStatus movieStatus = movieStatusRepository.findByUserIdAndMovieId(user, movieId);
 
         if (movieStatus == null) {
             return Response.status(Response.Status.NOT_FOUND).entity("Movie status not found").build();
@@ -80,19 +88,17 @@ public class MovieStatusResource extends BasicRestCrudResource<MovieStatus, Movi
             StatusUpdateRequest statusUpdateRequest) {
 
         try {
-            // Überprüfen, ob der Eintrag bereits existiert
-            MovieStatus movieStatus = movieStatusRepository.findByUserIdAndMovieId(uid, movieId);
+            User user = userRepository.findByUid(uid);
+            MovieStatus movieStatus = movieStatusRepository.findByUserIdAndMovieId(user, movieId);
 
             if (movieStatus == null) {
-                // Neuen Eintrag erstellen
-                movieStatus = new MovieStatus(uid, movieId,
+                movieStatus = new MovieStatus(user, movieId,
                         statusUpdateRequest.favorite != null && statusUpdateRequest.favorite,
                         statusUpdateRequest.watchlist != null && statusUpdateRequest.watchlist,
                         statusUpdateRequest.watched != null && statusUpdateRequest.watched,
                         null);
                 movieStatusRepository.persist(movieStatus);
             } else {
-                // Statuswerte aktualisieren
                 if (statusUpdateRequest.favorite != null) {
                     movieStatus.setFavorite(statusUpdateRequest.favorite);
                 }
@@ -104,7 +110,6 @@ public class MovieStatusResource extends BasicRestCrudResource<MovieStatus, Movi
                 }
             }
 
-            // Erfolgreiche Antwort zurückgeben
             return Response.ok(new StatusResponse(movieStatus.isFavorite(), movieStatus.isWatchlist(), movieStatus.isWatched())).build();
 
         } catch (Exception e) {

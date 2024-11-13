@@ -27,7 +27,6 @@ public class User
 	@ManyToMany(mappedBy = "users")
 	private Set<Role> roles = new HashSet<>();
 
-
 	public User(final String uid)
 	{
 		this.uid = uid;
