@@ -58,7 +58,8 @@ public class MovieStatusResource extends BasicRestCrudResource<MovieStatus, Movi
     @Path("/user/{uid}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getMovieStatusesByUserId(@PathParam("uid") String uid) {
-        List<MovieStatus> movieStatuses = movieStatusRepository.findByUserId(uid);
+        User user = userRepository.findByUid(uid);
+        List<MovieStatus> movieStatuses = movieStatusRepository.findByUserId(user);
         return Response.ok(movieStatuses).build();
     }
 
