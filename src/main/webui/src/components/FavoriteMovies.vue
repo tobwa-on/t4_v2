@@ -37,7 +37,7 @@
 <script setup>
 import { onMounted, ref } from 'vue';
 import { getImageUrl, getMovieDetails } from '@/services/tmdbService.js';
-import { getFavouriteMovies } from "@/services/favoriteService.js";
+import { getFavoriteMovies } from "@/services/favoriteService.js";
 import UserService from "@/services/userService.js";
 
 const favouriteMovies = ref([]);
@@ -52,7 +52,7 @@ const fetchMovieDetails = async () => {
       return;
     }
 
-    const favorites = await getFavouriteMovies(uid); // Ruft die Favoriten ab
+    const favorites = await getFavoriteMovies(uid); // Ruft die Favoriten ab
     if (favorites && favorites.length > 0) { // Prüft, ob favorites nicht leer ist
       console.log("Test", favorites)
       const movieDetailsPromises = favorites.map(favorite => getMovieDetails(favorite.movieId));

@@ -1,38 +1,36 @@
 <template>
   <v-container fluid>
     <PopularMovies @showDetailDialog="showMovieDetails" />
-    <SearchMovie @showDetailDialog="showMovieDetails"/>
+    <SearchMovie @showDetailDialog="showMovieDetails" />
 
     <MovieDetailsDialog
         :detailDialog="detailDialog"
         :movieDetails="movieDetails"
         @update:detailDialog="detailDialog = $event"
-        @reviewDialog="reviewDialog = $event"
+        @showSnackbar="handleSnackbar"
     />
 
-    <ReviewDialog
-        :reviewDialog="reviewDialog"
-        :movieDetails="movieDetails"
-        @update:reviewDialog="reviewDialog = $event"
-    />
+    <v-snackbar v-model="showSnackbar" :color="snackbarColor" timeout="3000" top>
+      {{ snackbarMessage }}
+    </v-snackbar>
   </v-container>
 </template>
 
 <script setup>
-import { ref, onMounted, defineEmits  } from 'vue';
-
+import { ref, onMounted } from 'vue';
 import { getPopularMovies, getMovieDetails } from '@/services/tmdbService.js';
 import PopularMovies from "@/components/PopularMovies.vue";
 import SearchMovie from "@/components/SearchMovie.vue";
 import MovieDetailsDialog from "@/components/MovieDetailsDialog.vue";
-import ReviewDialog from "@/components/ReviewDialog.vue";
 
 const popularMovies = ref([]);
 const detailDialog = ref(false);
-const reviewDialog = ref(false);
 const movieDetails = ref({});
 
-defineEmits(['showDetailDialog', 'showReviewDialog']);
+const showSnackbar = ref(false);      // Zeigt die Snackbar an
+const snackbarMessage = ref('');      // Speichert die Nachricht der Snackbar
+const snackbarColor = ref('');       // Speichert die Farbe der Snackbar
+
 const fetchPopularMovies = async () => {
   try {
     const response = await getPopularMovies();
@@ -51,6 +49,12 @@ const showMovieDetails = async (movieId) => {
   } catch (error) {
     console.error("Fehler beim Laden der Filmdetails:", error);
   }
+};
+
+const handleSnackbar = ({ message, color }) => {
+  snackbarMessage.value = message;    // Setzt die Nachricht
+  snackbarColor.value = color;        // Setzt die Farbe
+  showSnackbar.value = true;          // Zeigt die Snackbar an
 };
 
 </script>

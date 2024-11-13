@@ -1,6 +1,3 @@
-/**
- *
- */
 package edu.dhbw.mos.fim.usr.model;
 
 import io.quarkus.security.jpa.RolesValue;
@@ -8,11 +5,11 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
+import java.util.HashSet;
+import java.util.Set;
 
-/**
- *
- */
 @Entity
 @Table(name = "roles")
 public class Role
@@ -24,6 +21,9 @@ public class Role
 	@RolesValue
 	@Column(length = 64, nullable = false, unique = true)
 	private String name;
+
+	@ManyToMany
+	private Set<User> users = new HashSet<>();
 
 	public Role(final String name)
 	{
@@ -54,6 +54,16 @@ public class Role
 		this.name = name;
 	}
 
+	public Set<User> getUsers()
+	{
+		return users;
+	}
+
+	public void setUsers(final Set<User> users)
+	{
+		this.users = users;
+	}
+
 	@Override
 	public int hashCode()
 	{
@@ -76,11 +86,8 @@ public class Role
 			return false;
 		if (name == null)
 		{
-			if (other.name != null)
-				return false;
+            return other.name == null;
 		}
-		else if (!name.equals(other.name))
-			return false;
-		return true;
-	}
+		else return name.equals(other.name);
+    }
 }

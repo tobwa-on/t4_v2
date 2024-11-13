@@ -8,6 +8,7 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import java.util.List;
 @Path("/reviews")
 public class ReviewResource {
 
@@ -15,12 +16,22 @@ public class ReviewResource {
     private ReviewRepository reviewRepository;
 
     @POST
+    @Path("/saveOrUpdate")
     @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response addReview(Review review) {
-        reviewRepository.persist(review);
-        return Response.ok(review).build();
+    public Response saveOrUpdateReview(Review review) {
+        Review existingReview = reviewRepository.findByUserIdAndMovieId(review.getUid(), review.getMovieId());
+
+        if (existingReview != null) {
+            existingReview.setRating(review.getRating());
+            existingReview.setReviewText(review.getReviewText());
+            reviewRepository.persist(existingReview);
+            return Response.ok(existingReview).build();
+        } else {
+            reviewRepository.persist(review);
+            return Response.ok(review).build();
+        }
     }
 
     @GET
@@ -33,26 +44,18 @@ public class ReviewResource {
         }
         return Response.ok(review).build();
     }
-    
-    @PUT
-    @Path("/user/{uid}/movie/{movieId}")
-    @Transactional
-    @Consumes(MediaType.APPLICATION_JSON)
+
+    // Neue Methode: Alle Rezensionen für einen Film zurückgeben
+    @GET
+    @Path("/movie/{movieId}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response updateReview(
-            @PathParam("uid") String uid,
-            @PathParam("movieId") Long movieId,
-            Review updatedReview) {
-        Review existingReview = reviewRepository.findByUserIdAndMovieId(uid, movieId);
-        if (existingReview == null) {
-            return Response.status(Response.Status.NOT_FOUND).entity("Review not found").build();
+    public Response getAllReviews(@PathParam("movieId") Long movieId) {
+        List<Review> reviews = reviewRepository.findByMovieId(movieId);
+
+        if (reviews == null || reviews.isEmpty()) {
+            return Response.status(Response.Status.NOT_FOUND).build();
         }
 
-        existingReview.setRating(updatedReview.getRating());
-        existingReview.setReviewText(updatedReview.getReviewText());
-        reviewRepository.persist(existingReview);
-
-        return Response.ok(existingReview).build();
+        return Response.ok(reviews).build();
     }
-
 }

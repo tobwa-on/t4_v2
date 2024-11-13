@@ -1,13 +1,17 @@
 <template>
   <FavoriteMovies @showDetailDialog="showMovieDetails"/>
 
-  <!-- Dialog für Filmdetails -->
   <MovieDetailsDialog
       :detailDialog="detailDialog"
       :movieDetails="movieDetails"
-      :isSavedForLater="isSavedForLater"
-      @update:dialog="dialog = $event"
+      @update:detailDialog="detailDialog = $event"
+      @showSnackbar="showSnackbar"
   />
+
+  <v-snackbar v-model="showSuccess" timeout="3000" color="green" top>
+    Das Speichern war erfolgreich!
+  </v-snackbar>
+
 </template>
 
 <script setup>
@@ -18,7 +22,7 @@ import {getMovieDetails} from "@/services/tmdbService.js";
 
 const detailDialog = ref(false);
 const movieDetails = ref({});
-const isSavedForLater = ref(false);
+const showSuccess = ref(false);
 
 defineEmits(['showDetailDialog']);
 
@@ -30,6 +34,10 @@ const showMovieDetails = async (movieId) => {
   } catch (error) {
     console.error("Fehler beim Laden der Filmdetails:", error);
   }
+};
+
+const showSnackbar = () => {
+  showSuccess.value = true;
 };
 
 </script>

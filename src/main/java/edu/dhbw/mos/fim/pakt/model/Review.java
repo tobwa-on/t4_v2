@@ -23,18 +23,8 @@ public class Review {
     @Column(length = 2000)
     private String reviewText;
 
-    // Standard-Konstruktor
     public Review() {}
 
-    // Konstruktor mit Parametern
-    public Review(String uid, Long movieId, Double rating, String reviewText) {
-        this.uid = uid;
-        this.movieId = movieId;
-        this.rating = rating;
-        this.reviewText = reviewText;
-    }
-
-    // Getter und Setter für alle Felder
     public Long getId() {
         return id;
     }

@@ -23,7 +23,6 @@ public class FavoriteResource extends BasicRestCrudResource<Favorite, FavoriteRe
         if (existingFavorite != null) {
             throw new WebApplicationException("Favorite already exists", Response.Status.CONFLICT);
         }
-
         return super.add(favorite);
     }
 
