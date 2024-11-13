@@ -37,3 +37,13 @@ export async function getAllReviews(movieId) {
     }
     return null;
 }
+
+export const deleteReview = async (uid, movieId) => {
+    try {
+        const response = await apiService.delete(`/reviews/user=${uid}/movie=${movieId}`);
+        return response.status === 204;
+    } catch (error) {
+        console.error("Fehler beim Löschen der Rezension:", error);
+        throw error;
+    }
+};

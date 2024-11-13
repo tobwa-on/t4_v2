@@ -12,51 +12,11 @@
     <!-- Links -->
     <v-btn to="/">Home</v-btn>
     <v-btn to="/favorites" v-if="Object.keys(user).length">Favoriten</v-btn>
+    <v-btn to="/watchlist" v-if="Object.keys(user).length">Merkliste</v-btn>
+    <v-btn to="/watched" v-if="Object.keys(user).length">Geschaute Filme</v-btn>
+    <v-btn to="/changepassword" v-if="Object.keys(user).length">Passwort ändern</v-btn>
 
-    <!-- Dropdown für Kunden -->
-    <v-menu offset-y>
-      <template #activator="{ props }">
-        <v-btn v-bind="props">Kunden</v-btn>
-      </template>
-      <v-list>
-        <v-list-item link :to="{ path: '/customerlist' }">
-          <v-list-item-title>Kundenliste</v-list-item-title>
-        </v-list-item>
-        <v-list-item link :to="{ path: '/addcustomer' }">
-          <v-list-item-title>Kunde anlegen</v-list-item-title>
-        </v-list-item>
-      </v-list>
-    </v-menu>
-
-    <!-- Dropdown für Produkte -->
-    <v-menu offset-y>
-      <template #activator="{ props }">
-        <v-btn v-bind="props">Produkte</v-btn>
-      </template>
-      <v-list>
-        <v-list-item link :to="{ path: '/productlist' }">
-          <v-list-item-title>Produktliste</v-list-item-title>
-        </v-list-item>
-        <v-list-item link :to="{ path: '/addproduct' }">
-          <v-list-item-title>Produkt anlegen</v-list-item-title>
-        </v-list-item>
-      </v-list>
-    </v-menu>
-
-    <!-- Dropdown für Bestellung -->
-    <v-menu offset-y>
-      <template #activator="{ props }">
-        <v-btn v-bind="props">Bestellung</v-btn>
-      </template>
-      <v-list>
-        <v-list-item link :to="{ path: '/orderlist' }">
-          <v-list-item-title>Liste der Bestellungen</v-list-item-title>
-        </v-list-item>
-        <v-list-item link :to="{ path: '/addorder' }">
-          <v-list-item-title>Bestellung anlegen</v-list-item-title>
-        </v-list-item>
-      </v-list>
-    </v-menu>
+    <v-btn to="/adminview" v-if="adminLoggedIn">Nutzer verwalten</v-btn>
 
     <!-- Benutzer Dropdown oder Login -->
     <v-menu offset-y v-if="Object.keys(user).length">
@@ -78,10 +38,11 @@
 import { onMounted, ref } from 'vue';
 import VueJwtDecode from 'vue-jwt-decode';
 import { useRouter } from 'vue-router';
+import UserService from "@/services/userService.js";
 
 const user = ref({});
 const router = useRouter();
-const searchQuery = ref('');
+const adminLoggedIn = ref(false);
 
 async function decodeUserData() {
   const token = localStorage.getItem("user");
@@ -95,6 +56,15 @@ async function decodeUserData() {
         await router.push({ path: '/' });
         window.location.reload();
       }
+
+      /*
+      const user = UserService.getUserRole();
+      if (user.role === admin) {
+        adminLoggedIn.value = true;
+      }
+
+       */
+
     } catch (error) {
       console.error(error);
     }
@@ -104,12 +74,8 @@ async function decodeUserData() {
 function logOut() {
   localStorage.removeItem("user");
   router.push({ path: '/' });
+  adminLoggedIn.value = false;
   window.location.reload();
-}
-
-function searchMovies() {
-  // Hier kommt die Suchlogik, z.B. ein API-Call mit searchQuery.value
-  console.log("Suche gestartet für:", searchQuery.value);
 }
 
 onMounted(() => {

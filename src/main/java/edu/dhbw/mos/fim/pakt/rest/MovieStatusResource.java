@@ -1,7 +1,9 @@
 package edu.dhbw.mos.fim.pakt.rest;
 
 import edu.dhbw.mos.fim.pakt.db.MovieStatusRepository;
+import edu.dhbw.mos.fim.pakt.db.ReviewRepository;
 import edu.dhbw.mos.fim.pakt.model.MovieStatus;
+import edu.dhbw.mos.fim.pakt.model.Review;
 import edu.dhbw.mos.fim.usr.db.UserRepository;
 import edu.dhbw.mos.fim.usr.model.User;
 import jakarta.inject.Inject;
@@ -17,11 +19,15 @@ public class MovieStatusResource extends BasicRestCrudResource<MovieStatus, Movi
 
     @Inject
     UserRepository userRepository;
+
     @Inject
     private MovieStatusRepository movieStatusRepository;
 
+    @Inject
+    private ReviewRepository reviewRepository;
+
     @DELETE
-    @Path("/user/{uid}/movie/{movieId}")
+    @Path("/user={uid}/movie={movieId}")
     @Transactional
     public Response removeMovieStatus(@PathParam("uid") String uid, @PathParam("movieId") Long movieId) {
         User user = userRepository.findByUid(uid);
@@ -68,14 +74,18 @@ public class MovieStatusResource extends BasicRestCrudResource<MovieStatus, Movi
         }
 
         MovieStatus movieStatus = movieStatusRepository.findByUserIdAndMovieId(user, movieId);
+        Review existingReview = reviewRepository.findByUserIdAndMovieId(user, movieId);
 
         if (movieStatus == null) {
             movieStatus = new MovieStatus();
             movieStatus.setUid(user);
             movieStatus.setMovieId(movieId);
+            // was mach ich hier eigentlich?
+            if (existingReview != null) {
+                movieStatus.setReview(existingReview);
+            }
         }
 
-        // Update or initialize the status fields
         if (statusUpdateRequest.favorite != null) {
             movieStatus.setFavorite(statusUpdateRequest.favorite);
         }

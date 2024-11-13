@@ -27,6 +27,7 @@ public class User
 	@ManyToMany(mappedBy = "users")
 	private Set<Role> roles = new HashSet<>();
 
+
 	public User(final String uid)
 	{
 		this.uid = uid;
@@ -77,6 +78,8 @@ public class User
 		{
             return other.uid == null;
 		}
-		else return uid.equals(other.uid);
-    }
+		else if (!uid.equals(other.uid))
+			return false;
+		return true;
+	}
 }

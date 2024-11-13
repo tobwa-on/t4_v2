@@ -86,8 +86,8 @@ public class Role
 			return false;
 		if (name == null)
 		{
-            return other.name == null;
+			return other.name == null;
 		}
 		else return name.equals(other.name);
-    }
+	}
 }

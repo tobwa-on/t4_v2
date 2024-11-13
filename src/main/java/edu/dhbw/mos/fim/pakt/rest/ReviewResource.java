@@ -1,6 +1,8 @@
 package edu.dhbw.mos.fim.pakt.rest;
 
+import edu.dhbw.mos.fim.pakt.db.MovieStatusRepository;
 import edu.dhbw.mos.fim.pakt.db.ReviewRepository;
+import edu.dhbw.mos.fim.pakt.model.MovieStatus;
 import edu.dhbw.mos.fim.pakt.model.Review;
 import edu.dhbw.mos.fim.usr.db.UserRepository;
 import edu.dhbw.mos.fim.usr.model.User;
@@ -19,23 +21,36 @@ public class ReviewResource {
     @Inject
     private ReviewRepository reviewRepository;
 
+    @Inject
+    private MovieStatusRepository movieStatusRepository;
+
     @POST
     @Path("/saveOrUpdate")
     @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response saveOrUpdateReview(Review review) {
-        Review existingReview = reviewRepository.findByUserIdAndMovieId(review.getUid(), review.getMovieId());
+
+        User user = review.getUid();
+        Review existingReview = reviewRepository.findByUserIdAndMovieId(user, review.getMovieId());
 
         if (existingReview != null) {
             existingReview.setRating(review.getRating());
             existingReview.setReviewText(review.getReviewText());
             reviewRepository.persist(existingReview);
-            return Response.ok(existingReview).build();
         } else {
+            review.setUid(user);
             reviewRepository.persist(review);
-            return Response.ok(review).build();
+            existingReview = review;
         }
+
+        MovieStatus movieStatus = movieStatusRepository.findByUserIdAndMovieId(user, review.getMovieId());
+        if (movieStatus != null) {
+            movieStatus.setReview(existingReview);
+            movieStatusRepository.persist(movieStatus);
+        }
+
+        return Response.ok(existingReview).build();
     }
 
     @GET
@@ -62,5 +77,26 @@ public class ReviewResource {
         }
 
         return Response.ok(reviews).build();
+    }
+
+    @DELETE
+    @Path("/user={uid}/movie={movieId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Transactional
+    public Response deleteReview(@PathParam("uid") String uid, @PathParam("movieId") Long movieId) {
+        User user = userRepository.findByUid(uid);
+        Review review = reviewRepository.findByUserIdAndMovieId(user, movieId);
+        if (review == null) {
+            return Response.status(Response.Status.NOT_FOUND).entity("Review not found").build();
+        }
+
+        MovieStatus movieStatus = movieStatusRepository.findByUserIdAndMovieId(user, movieId);
+        if (movieStatus != null) {
+            movieStatus.setReview(null);
+            movieStatusRepository.persist(movieStatus);
+        }
+
+        reviewRepository.delete(review);
+        return Response.noContent().build();
     }
 }

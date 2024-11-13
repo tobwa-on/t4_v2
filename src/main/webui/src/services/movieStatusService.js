@@ -31,3 +31,13 @@ export const updateMovieStatus = async (uid, movieId, { favorite, watchlist, wat
         throw error;
     }
 };
+
+
+export const deleteMovieStatus = async (uid, movieId) => {
+    try {
+        const response = await apiService.delete(`/moviestatus/user=${uid}/movie=${movieId}`);
+        return response.status === 204;
+    } catch (error) {
+        throw error;
+    }
+};

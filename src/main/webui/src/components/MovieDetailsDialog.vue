@@ -16,21 +16,21 @@
         <v-col cols="auto" class="pr-4">
           <v-row class="justify-center">
             <v-col cols="4" class="text-center">
-              <v-btn flat icon @click="handleToggleWatched">
+              <v-btn flat icon @click="handleToggleStatus('isWatched')">
                 <v-icon>{{ isWatched ? 'mdi-eye' : 'mdi-eye-outline' }}</v-icon>
               </v-btn>
               <div>{{ isWatched ? 'Gesehen' : 'Gesehen' }}</div>
             </v-col>
 
             <v-col cols="auto" class="text-center">
-              <v-btn flat icon @click="handleToggleFavorite">
+              <v-btn flat icon @click="handleToggleStatus('isFavorite')">
                 <v-icon>{{ isFavorite ? 'mdi-heart' : 'mdi-heart-outline' }}</v-icon>
               </v-btn>
               <div>{{ isFavorite ? 'Favorit' : 'Favorit' }}</div>
             </v-col>
 
             <v-col cols="auto" class="text-center">
-              <v-btn flat icon @click="handleToggleWatchlist">
+              <v-btn flat icon @click="handleToggleStatus('isInWatchlist')">
                 <v-icon>{{ isInWatchlist ? 'mdi-clock-minus' : 'mdi-clock-plus-outline' }}</v-icon>
               </v-btn>
               <div>{{ isInWatchlist ? 'Gemerkt' : 'Merken' }}</div>
@@ -65,7 +65,6 @@
               <v-spacer></v-spacer>
               <v-btn
                   :icon="showReviews ? 'mdi-chevron-up' : 'mdi-chevron-down'"
-                  @click="showReviews = !showReviews"
               ></v-btn>
             </v-card-actions>
 
@@ -122,9 +121,9 @@
 <script setup>
 import {defineEmits, ref, watch} from 'vue';
 import {getImageUrl} from '@/services/tmdbService.js';
-import {getMovieStatus, updateMovieStatus} from '@/services/movieStatusService.js';
+import {deleteMovieStatus, getMovieStatus, updateMovieStatus} from '@/services/movieStatusService.js';
 import UserService from "@/services/userService.js";
-import {getAllReviews, getReview, saveOrUpdateReview} from "@/services/reviewService.js";
+import {deleteReview, getAllReviews, getReview, saveOrUpdateReview} from "@/services/reviewService.js";
 
 const props = defineProps({
   detailDialog: Boolean,
@@ -135,14 +134,17 @@ const emit = defineEmits(['update:detailDialog', 'showSnackbar']);
 const detailDialog = ref(props.detailDialog);
 const uid = UserService.getUser().upn;
 const showError = ref(false);
-let isFavorite = ref(false);
-let isWatched = ref(false);
-let isInWatchlist = ref(false);
+
 const starRating = ref(0);
 const reviewText = ref(null);
 const reviews = ref([]);
 const showReviews = ref(false)
 const errorMessage = ref('');
+
+const isFavorite = ref(false);
+const isWatched = ref(false);
+const isInWatchlist = ref(false);
+
 
 function throwErrorMessage(message) {
   showError.value = true;
@@ -156,52 +158,33 @@ function checkUserLoggedIn() {
   }
 }
 
-// TODO vielleicht zusammenfassen?
-const handleToggleFavorite = async () => {
+const handleToggleStatus = async (statusField) => {
   checkUserLoggedIn();
 
-  isFavorite.value = !isFavorite.value;
-  try {
-    await updateMovieStatus(uid, props.movieDetails.id, {
-      favorite: isFavorite.value,
-      watchlist: isInWatchlist.value,
-      watched: isWatched.value
-    });
-  } catch (error) {
-    console.error("Fehler bei der Favoritenaktualisierung:", error);
+  if (statusField === "isFavorite") {
     isFavorite.value = !isFavorite.value;
-  }
-};
-const handleToggleWatchlist = async () => {
-  checkUserLoggedIn();
-
-  isInWatchlist.value = !isInWatchlist.value;
-  try {
-    await updateMovieStatus(uid, props.movieDetails.id, {
-      favorite: isFavorite.value,
-      watchlist: isInWatchlist.value,
-      watched: isWatched.value
-    });
-  } catch (error) {
-    console.error("Fehler bei der Watchlist-Aktualisierung:", error);
+  } else if (statusField === "isWatched") {
+    isWatched.value = !isWatched.value;
+  } else {
     isInWatchlist.value = !isInWatchlist.value;
   }
-};
-const handleToggleWatched = async () => {
-  checkUserLoggedIn();
 
-  isWatched.value = !isWatched.value;
   try {
+    if (!isInWatchlist.value && !isFavorite.value && !isWatched.value) {
+        await deleteMovieStatus(uid, props.movieDetails.id);
+        return;
+    }
+
     await updateMovieStatus(uid, props.movieDetails.id, {
       favorite: isFavorite.value,
       watchlist: isInWatchlist.value,
       watched: isWatched.value
     });
   } catch (error) {
-    console.error("Fehler bei der Watch-Status-Aktualisierung:", error);
-    isWatched.value = !isWatched.value;
+    console.error("Fehler bei der Status-Aktualisierung:", error);
+    statusField.value = !statusField.value;
   }
-};
+}
 
 const getExistingReview = async () => {
   try {
@@ -219,10 +202,8 @@ const loadReviews = async () => {
   try {
     const allReviews = await getAllReviews(props.movieDetails.id);
     reviews.value = allReviews.filter(review => review.rating !== 0);
-    console.log(reviews.value.length)
   } catch (error) {
-    console.log("Fehler", reviews.value)
-    reviews.value = null;
+
   }
 };
 
@@ -235,8 +216,14 @@ const handleSaveReview = async () => {
     }
 
     if (starRating.value !== 0 || reviewText.value !== null){
-      await saveOrUpdateReview(uid, props.movieDetails.id, starRating.value, reviewText.value);
-      emit('showSnackbar', { message: 'Die Rezension wurde erfolgreich gespeichert!', color: 'green' });
+      // Review speichern oder aus DB loeschen
+      if (starRating.value !== 0 && reviewText.value !== null) {
+        await saveOrUpdateReview(uid, props.movieDetails.id, starRating.value, reviewText.value);
+        emit('showSnackbar', { message: 'Die Rezension wurde erfolgreich gespeichert!', color: 'green' });
+      } else {
+        await deleteReview(uid, props.movieDetails.id);
+      }
+
     } else {
       emit('showSnackbar', { message: 'Keine Rezension gespeichert', color: 'grey' });
     }
@@ -271,6 +258,8 @@ function setFieldsAtExit() {
   reviewText.value = "";
   showError.value = false;
   showReviews.value = false;
+  starRating.value = 0;
+  reviews.value = [];
 }
 
 watch(
