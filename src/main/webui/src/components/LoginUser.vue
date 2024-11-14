@@ -64,7 +64,7 @@ export default {
             });
           })
           .catch(error => {
-            console.log(error);
+            console.error(error);
             this.snackbarMessage = "Fehler beim Login. Bitte überprüfen Sie Ihre Anmeldedaten.";
             this.snackbarColor = "error";
             this.showSnackbar = true;

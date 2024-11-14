@@ -218,7 +218,6 @@ const handleSaveReview = async () => {
     if (starRating.value !== 0 || reviewText.value !== null){
       // Review speichern oder aus DB loeschen
       if (starRating.value !== 0) {
-        console.log("test")
         await saveOrUpdateReview(uid, props.movieDetails.id, starRating.value, reviewText.value);
         emit('showSnackbar', { message: 'Die Rezension wurde erfolgreich gespeichert!', color: 'green' });
       } else {

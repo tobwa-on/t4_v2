@@ -18,8 +18,7 @@ export async function getReview(userId, movieId) {
 
 export const saveOrUpdateReview = async (uid, movieId, rating, reviewText) => {
     try {
-        const response = await apiService.post('/reviews/saveOrUpdate', { uid, movieId, rating, reviewText });
-        console.log("Rezension gespeichert oder aktualisiert:", response.data);
+        await apiService.post('/reviews/saveOrUpdate', { uid, movieId, rating, reviewText });
     } catch (error) {
         console.error("Fehler beim Speichern oder Aktualisieren der Rezension:", error);
         throw error;
