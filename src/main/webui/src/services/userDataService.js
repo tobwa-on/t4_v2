@@ -35,3 +35,22 @@ export const registerNewUser = async (username, password) => {
     }
 };
 
+export const fetchAllUsers = async () => {
+    try {
+        const response = await apiService.get('/user/all');
+        return response.data;
+    } catch (error) {
+        console.error("Fehler beim Abrufen der Benutzerliste:", error);
+        throw error;
+    }
+};
+
+export const deleteUser = async (uid) => {
+    try {
+        const response = await apiService.delete(`/user/delete=${uid}`);
+        return response.data;
+    } catch (error) {
+        console.error("Fehler beim Löschen des Benutzers:", error);
+        throw error;
+    }
+};

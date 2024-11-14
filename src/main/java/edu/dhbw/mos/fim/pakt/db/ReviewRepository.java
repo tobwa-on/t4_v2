@@ -3,7 +3,6 @@ package edu.dhbw.mos.fim.pakt.db;
 import edu.dhbw.mos.fim.pakt.model.Review;
 import edu.dhbw.mos.fim.usr.model.User;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.transaction.Transactional;
 
 import java.util.List;
 
@@ -19,6 +18,16 @@ public class ReviewRepository extends BaseRepository<Review> {
      */
     public Review findByUserIdAndMovieId(User user, Long movieId) {
         return find("uid = ?1 and movieId = ?2", user , movieId).firstResult();
+    }
+
+    /**
+     * Finds a review based on user ID.
+     *
+     * @param user the user
+     * @return Review object if found, otherwise null
+     */
+    public List<Review> findByUserId(User user) {
+        return list("uid = ?1", user);
     }
 
     /**

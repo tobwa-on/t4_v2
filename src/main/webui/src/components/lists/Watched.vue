@@ -1,20 +1,20 @@
 <template>
   <v-container fluid>
     <v-row class="d-flex justify-center align-center py-4">
-      <v-icon color="red" size="36" class="mr-2">mdi-heart</v-icon>
-      <h2 class="font-weight-bold mb-0">Meine Favoriten</h2>
+      <v-icon color="blue" size="36" class="mr-2">mdi-eye</v-icon>
+      <h2 class="font-weight-bold mb-0">Gesehene Filme</h2>
     </v-row>
 
-    <v-row v-if="favoriteMovies.length === 0" class="mt-4">
+    <v-row v-if="watchedMovies.length === 0" class="mt-4">
       <v-col cols="12" class="text-center">
-        <p>Bisher wurden keine Filme als Favorit gespeichert.</p>
+        <p>Bisher wurden keine Filme als Gesehen gespeichert.</p>
       </v-col>
     </v-row>
 
     <!-- Ergebnisse -->
     <v-row v-else class="mt-4" dense align-content="start">
       <v-col
-          v-for="movie in favoriteMovies"
+          v-for="movie in watchedMovies"
           :key="movie.id"
           cols="4"
       >
@@ -38,16 +38,17 @@
         </v-row>
       </v-col>
     </v-row>
+
   </v-container>
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue';
-import { getImageUrl, getMovieDetails } from '@/services/tmdbService.js';
-import { getMoviesByStatus} from "@/services/movieStatusService.js";
+import { onMounted, ref} from "vue";
 import UserService from "@/services/userService.js";
+import {getMoviesByStatus} from "@/services/movieStatusService.js";
+import {getImageUrl, getMovieDetails} from "@/services/tmdbService.js";
 
-const favoriteMovies = ref([]);
+const watchedMovies = ref([]);
 const resultMessage = ref("");
 const showSnackbar = ref(false);
 const snackbarColor = ref("success");
@@ -62,25 +63,26 @@ const fetchMovieDetails = async () => {
       return;
     }
 
-    const movieIds = await getMoviesByStatus(uid, 'favorite');
-
-    if (movieIds && movieIds.length > 0) {
-      const movieDetailsPromises = movieIds.map(id => getMovieDetails(id));
-      const movies = await Promise.all(movieDetailsPromises);
-      favoriteMovies.value = movies.map(response => response.data);
-    }
+    const movieIds = await getMoviesByStatus(uid, 'watched');
+    const movieDetailsPromises = movieIds.map(id => getMovieDetails(id));
+    const movies = await Promise.all(movieDetailsPromises);
+    watchedMovies.value = movies.map(response => response.data);
 
   } catch (error) {
     throwError("Fehler beim Abrufen der Filmdetails")
     console.error("Fehler beim Abrufen der Filmdetails:", error);
   }
-};
+}
+
+onMounted(fetchMovieDetails);
 
 function throwError(errorMessage) {
   resultMessage.value = errorMessage || "Fehler beim Abrufen der Filmdetails";
   snackbarColor.value = "error";
   showSnackbar.value = true;
 }
-
-onMounted(fetchMovieDetails);
 </script>
+
+<style scoped>
+
+</style>

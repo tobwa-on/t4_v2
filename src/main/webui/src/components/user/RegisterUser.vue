@@ -47,9 +47,10 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
+import {ref, onMounted} from 'vue';
+import {useRouter} from 'vue-router';
 import {registerNewUser} from "@/services/userDataService.js";
+import UserService from "@/services/userService.js";
 
 const username = ref("");
 const password = ref("");
@@ -60,9 +61,27 @@ const snackbarColor = ref("success");
 
 const router = useRouter();
 
+onMounted(async () => {
+  try {
+    const currentUser = UserService.getUser();
+    let userRoles = null;
+
+    if (Object.keys(currentUser).length !== 0) {
+      userRoles = await UserService.getUserRole(currentUser?.upn || "");
+    }
+
+    if (Object.keys(currentUser).length !== 0 && (!userRoles || !userRoles.includes("admin"))) {
+      await router.push({ path: '/' });
+    }
+  } catch (error) {
+    console.error("Fehler beim Überprüfen der Benutzerberechtigung:", error);
+    await router.push({path: '/'});
+  }
+});
+
 const register = async () => {
   if (password.value !== confirmPassword.value) {
-    throwError("Die Passwörter stimmen nicht überein.")
+    throwError("Die Passwörter stimmen nicht überein.");
     return;
   }
 
@@ -73,17 +92,25 @@ const register = async () => {
       resultMessage.value = "Registrierung erfolgreich.";
       snackbarColor.value = "success";
       showSnackbar.value = true;
-      await router.push({ path: '/login' });
+
+      const currentUser = UserService.getUser();
+      const userRoles = await UserService.getUserRole(currentUser?.upn || "");
+
+      if (userRoles.includes("admin")) {
+        await router.push({ path: '/usermanagement' });
+      } else {
+        await router.push({ path: '/login' });
+      }
     } else {
-      throw new Error(response.message || "Fehler bei der Registrierung.");
+      throwError("Fehler bei der Registrierung.");
     }
   } catch (error) {
-    throwError(error.message)
+    throwError(error.message);
   }
 };
 
 function throwError(errorMessage) {
-  resultMessage.value = errorMessage || "Fehler beim Ändern des Passworts.";
+  resultMessage.value = errorMessage || "Fehler bei der Registrierung.";
   snackbarColor.value = "error";
   showSnackbar.value = true;
 }

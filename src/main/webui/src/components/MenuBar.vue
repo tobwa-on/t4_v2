@@ -15,7 +15,7 @@
     <v-btn to="/watchlist" v-if="Object.keys(user).length">Merkliste</v-btn>
     <v-btn to="/watched" v-if="Object.keys(user).length">Gesehene Filme</v-btn>
 
-    <v-btn to="/adminview" v-if="adminLoggedIn">Nutzerverwaltung</v-btn>
+    <v-btn to="/usermanagement" v-if="adminLoggedIn">Nutzerverwaltung</v-btn>
     <v-btn to="/register" v-if="!Object.keys(user).length">Registrieren</v-btn>
 
     <!-- Benutzer Dropdown oder Login -->

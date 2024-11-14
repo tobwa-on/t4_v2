@@ -38,7 +38,6 @@
         </v-row>
       </v-col>
     </v-row>
-
   </v-container>
 </template>
 
@@ -52,7 +51,6 @@ const watchlistMovies = ref([]);
 const resultMessage = ref("");
 const showSnackbar = ref(false);
 const snackbarColor = ref("success");
-const emit = defineEmits(['showSnackbar']);
 
 const fetchMovieDetails = async () => {
   try {

@@ -1,7 +1,7 @@
 <template>
   <v-container fluid>
     <v-row class="d-flex justify-center align-center py-4">
-      <v-icon color="blue" size="36" class="mr-2">mdi-trending-up</v-icon>
+      <v-icon color="orange" size="36" class="mr-2">mdi-trending-up</v-icon>
       <h2 class="font-weight-bold mb-0">Beliebte Filme</h2>
     </v-row>
 

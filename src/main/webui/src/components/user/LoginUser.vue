@@ -33,19 +33,26 @@
     </v-snackbar>
   </v-container>
 </template>
-
 <script>
+import UserService from "@/services/userService.js"; // Importiere deinen UserService zur Statusprüfung
+
 export default {
-	data() {
-		return {
-			username: "",
-			password: "",
-			text : "",
+  data() {
+    return {
+      username: "",
+      password: "",
+      text: "",
       showSnackbar: false,
       snackbarMessage: "",
       snackbarColor: "success"
-		};
-	},
+    };
+  },
+  async beforeMount() {
+    const currentUser = UserService.getUser();
+    if (currentUser && currentUser.upn) {
+      await this.$router.push({ path: '/' });
+    }
+  },
   methods: {
     login() {
       let data = { user: this.username, password: this.password };
@@ -72,3 +79,4 @@ export default {
   }
 }
 </script>
+

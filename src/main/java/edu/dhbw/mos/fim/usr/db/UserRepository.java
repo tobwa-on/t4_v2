@@ -28,10 +28,10 @@ public class UserRepository implements PanacheRepository<User>
 		final var dbRoles = roles.stream().map(rs -> roleRepo.findByNameOrCreateNew(rs)).collect(Collectors.toSet());
 		final var user = new User(uid);
 		user.setPassword(hashPassword(password));
-		// Rollen zu Benutzer hinzufügen und bidirektionale Beziehung setzen
+
 		for (Role role : dbRoles) {
-			user.getRoles().add(role);   // Rolle dem Benutzer hinzufügen
-			role.getUsers().add(user);   // Benutzer der Rolle hinzufügen
+			user.getRoles().add(role);
+			role.getUsers().add(user);
 		}
 		persist(user);
 	}

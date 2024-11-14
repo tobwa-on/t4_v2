@@ -30,7 +30,7 @@ const routes = [
 	{
 		path: '/watched',
 		name: 'watched',
-		component: () => import(/* webpackChunkName: "login" */ '../views/ChangePasswordView.vue')
+		component: () => import(/* webpackChunkName: "login" */ '../views/WatchedView.vue')
 	},
 	{
 		path: '/watchlist',
@@ -43,9 +43,9 @@ const routes = [
 		component: () => import(/* webpackChunkName: "login" */ '../views/ChangePasswordView.vue')
 	},
 	{
-		path: '/adminview',
-		name: 'adminview',
-		component: () => import(/* webpackChunkName: "login" */ '../views/ChangePasswordView.vue')
+		path: '/usermanagement',
+		name: 'usermanagement',
+		component: () => import(/* webpackChunkName: "login" */ '../views/UserManagementView.vue')
 	},
 
 ]
