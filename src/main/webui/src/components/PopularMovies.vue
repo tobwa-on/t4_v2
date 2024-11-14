@@ -1,25 +1,29 @@
 <template>
   <v-container fluid>
-    <h2 class="text-center mb-2">Beliebte Filme</h2>
-    <v-sheet class="mx-auto">
-      <v-slide-group show-arrows>
-        <v-slide-group-item
-            v-for="(movie) in popularMovies.slice(0, 20)"
-            :key="movie.id"
-            v-slot="{ toggle }"
-        >
-          <v-card
-              class="movie-card ma-2"
-              @click="() => { toggle(); $emit('showDetailDialog', movie.id); }"
-              flat
+    <v-row class="d-flex justify-center align-center py-4">
+      <v-icon color="blue" size="36" class="mr-2">mdi-trending-up</v-icon>
+      <h2 class="font-weight-bold mb-0">Beliebte Filme</h2>
+    </v-row>
+
+      <v-sheet class="mx-auto pt-5">
+        <v-slide-group show-arrows>
+          <v-slide-group-item
+              v-for="(movie) in popularMovies.slice(0, 20)"
+              :key="movie.id"
+              v-slot="{ toggle }"
           >
-            <v-img :src="getImageUrl(movie.poster_path)" height="200px"></v-img>
-            <v-card-title class="font-weight-bold text-truncate">{{ movie.title }}</v-card-title>
-            <v-card-subtitle class="text-truncate">{{ movie.release_date }}</v-card-subtitle>
-          </v-card>
-        </v-slide-group-item>
-      </v-slide-group>
-    </v-sheet>
+            <v-card
+                class="movie-card ma-2"
+                @click="() => { toggle(); $emit('showDetailDialog', movie.id); }"
+                flat
+            >
+              <v-img :src="getImageUrl(movie.poster_path)" height="200px"></v-img>
+              <v-card-title class="font-weight-bold text-truncate">{{ movie.title }}</v-card-title>
+              <v-card-subtitle class="text-truncate">{{ movie.release_date }}</v-card-subtitle>
+            </v-card>
+          </v-slide-group-item>
+        </v-slide-group>
+      </v-sheet>
   </v-container>
 </template>
 

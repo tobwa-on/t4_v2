@@ -31,7 +31,7 @@
 
             <v-col cols="auto" class="text-center">
               <v-btn flat icon @click="handleToggleStatus('isInWatchlist')">
-                <v-icon>{{ isInWatchlist ? 'mdi-clock-minus' : 'mdi-clock-plus-outline' }}</v-icon>
+                <v-icon>{{ isInWatchlist ? 'mdi-bookmark' : 'mdi-bookmark-outline' }}</v-icon>
               </v-btn>
               <div>{{ isInWatchlist ? 'Gemerkt' : 'Merken' }}</div>
             </v-col>
@@ -215,16 +215,14 @@ const handleSaveReview = async () => {
       throw new Error(errorMessage.value);
     }
 
-    if (starRating.value !== 0 || reviewText.value !== null){
+    if (starRating.value !== 0){
       // Review speichern oder aus DB loeschen
-      if (starRating.value !== 0) {
         await saveOrUpdateReview(uid, props.movieDetails.id, starRating.value, reviewText.value);
         emit('showSnackbar', { message: 'Die Rezension wurde erfolgreich gespeichert!', color: 'green' });
-      } else {
+    } else {
+      if (await getReview(uid, props.movieDetails.id)) {
         await deleteReview(uid, props.movieDetails.id);
       }
-
-    } else {
       emit('showSnackbar', { message: 'Keine Rezension gespeichert', color: 'grey' });
     }
 };

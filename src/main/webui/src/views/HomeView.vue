@@ -1,5 +1,4 @@
 <template>
-  <v-container fluid>
     <PopularMovies @showDetailDialog="showMovieDetails" />
     <SearchMovie @showDetailDialog="showMovieDetails" />
 
@@ -13,7 +12,6 @@
     <v-snackbar v-model="showSnackbar" :color="snackbarColor" timeout="3000" top>
       {{ snackbarMessage }}
     </v-snackbar>
-  </v-container>
 </template>
 
 <script setup>

@@ -1,5 +1,10 @@
 <template>
   <v-container fluid>
+    <v-row class="d-flex justify-center align-center py-4">
+      <v-icon color="green" size="36" class="mr-2">mdi-magnify</v-icon>
+      <h2 class="font-weight-bold mb-0">Filmsuche</h2>
+    </v-row>
+
     <v-row align="center" justify="center" class="my-4">
       <v-col cols="7">
         <v-text-field
@@ -14,9 +19,16 @@
       </v-col>
 
       <v-col cols="auto">
-        <v-btn color="primary" @click="searchMovies">
+        <v-btn color="black" @click="searchMovies">
           Suchen
         </v-btn>
+      </v-col>
+    </v-row>
+
+    <!-- Nachricht bei keinen Ergebnissen, nur nach Klick auf Suchen -->
+    <v-row v-if="isSearchPerformed && !movies.length" class="text-center">
+      <v-col cols="12">
+        <p>Keine Filme gefunden für "{{ searchQuery }}"</p>
       </v-col>
     </v-row>
 
@@ -28,7 +40,7 @@
           cols="4"
       >
         <v-row>
-          <v-card class="d-flex align-center pa-4" variant="flat">
+          <v-card class="d-flex align-center pa-4" variant="flat" @click="$emit('showDetailDialog', movie.id);">
             <v-col>
               <v-img
                   :src="getImageUrl(movie.poster_path)"
@@ -38,31 +50,38 @@
             </v-col>
 
             <v-col>
-              <div class="movie-info">
-                <v-card-title class="font-weight-bold">{{ movie.title }}</v-card-title>
-                <v-card-subtitle>{{ movie.release_date }}</v-card-subtitle>
-                <v-card-actions>
-                  <v-btn @click="$emit('showDetailDialog', movie.id);">Details ansehen</v-btn>
-                </v-card-actions>
-              </div>
+              <v-card-title class="font-weight-bold">{{ movie.title }}</v-card-title>
+              <v-card-subtitle>{{ movie.release_date }}</v-card-subtitle>
             </v-col>
-
           </v-card>
-
         </v-row>
       </v-col>
     </v-row>
+
+    <!-- Snackbar für leere Sucheingabe -->
+    <v-snackbar v-model="showSnackbar" color="error" top right>
+      Bitte geben Sie einen Suchbegriff ein.
+    </v-snackbar>
   </v-container>
 </template>
 
 <script setup>
 import { ref } from 'vue';
-import {getImageUrl, performSearch} from "@/services/tmdbService.js";
+import { getImageUrl, performSearch } from "@/services/tmdbService.js";
 
 const searchQuery = ref('');
 const movies = ref([]);
+const showSnackbar = ref(false);
+const isSearchPerformed = ref(false); // Neue Variable zum Verfolgen des Suchstatus
 
 const searchMovies = async () => {
+  if (!searchQuery.value) {
+    showSnackbar.value = true;
+    return;
+  }
+
+  isSearchPerformed.value = true; // Suche wird durchgeführt
+
   try {
     const response = await performSearch(searchQuery.value);
     movies.value = response.data.results.slice(0, 20);
@@ -70,20 +89,5 @@ const searchMovies = async () => {
     console.error("Fehler beim Abrufen der Filme:", error);
   }
 };
-
-
 </script>
 
-<style scoped>
-.mx-4 {
-  margin-left: 16px;
-  margin-right: 16px;
-}
-.py-1 {
-  padding-top: 4px;
-  padding-bottom: 4px;
-}
-.movie-info {
-  flex: 1;
-}
-</style>

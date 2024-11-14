@@ -1,15 +1,25 @@
 <template>
   <v-container fluid>
-    <h2 class="text-center mb-2">Meine Favoriten</h2>
+    <v-row class="d-flex justify-center align-center py-4">
+      <v-icon color="red" size="36" class="mr-2">mdi-heart</v-icon>
+      <h2 class="font-weight-bold mb-0">Meine Favoriten</h2>
+    </v-row>
+
+    <v-row v-if="favouriteMovies.length === 0" class="mt-4">
+      <v-col cols="12" class="text-center">
+        <p>Bisher wurden keine Filme als Favorit gespeichert.</p>
+      </v-col>
+    </v-row>
+
     <!-- Ergebnisse -->
-    <v-row class="mt-4" dense align-content="start">
+    <v-row v-else class="mt-4" dense align-content="start">
       <v-col
           v-for="movie in favouriteMovies"
           :key="movie.id"
           cols="4"
       >
         <v-row>
-          <v-card class="d-flex align-center pa-4" variant="flat">
+          <v-card class="d-flex align-center pa-4" variant="flat" @click="$emit('showDetailDialog', movie.id)">
             <v-col>
               <v-img
                   :src="movie.poster_path ? getImageUrl(movie.poster_path) : 'https://via.placeholder.com/100x150?text=No+Image'"
@@ -22,9 +32,6 @@
               <div class="movie-info">
                 <v-card-title class="font-weight-bold">{{ movie.title }}</v-card-title>
                 <v-card-subtitle>{{ movie.release_date }}</v-card-subtitle>
-                <v-card-actions>
-                  <v-btn @click="$emit('showDetailDialog', movie.id)">Details ansehen</v-btn>
-                </v-card-actions>
               </div>
             </v-col>
           </v-card>
@@ -65,6 +72,3 @@ const fetchMovieDetails = async () => {
 
 onMounted(fetchMovieDetails);
 </script>
-
-<style scoped>
-</style>

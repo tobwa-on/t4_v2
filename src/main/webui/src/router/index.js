@@ -35,7 +35,7 @@ const routes = [
 	{
 		path: '/watchlist',
 		name: 'watchlist',
-		component: () => import(/* webpackChunkName: "login" */ '../views/ChangePasswordView.vue')
+		component: () => import(/* webpackChunkName: "login" */ '../views/WatchlistView.vue')
 	},
 	{
 		path: '/changepassword',
