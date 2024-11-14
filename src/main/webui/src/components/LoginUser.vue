@@ -22,13 +22,15 @@
               autocomplete="current-password"
           ></v-text-field>
 
-          <v-btn type="submit" color="primary" variant="elevated" block>
+          <v-btn type="submit" color="black" variant="elevated" block>
             Login
           </v-btn>
         </v-form>
-        <p>Ergebnis: {{ text }}</p>
       </v-card-item>
     </v-card>
+    <v-snackbar v-model="showSnackbar" :color="snackbarColor" top right>
+      {{ snackbarMessage }}
+    </v-snackbar>
   </v-container>
 </template>
 
@@ -38,24 +40,36 @@ export default {
 		return {
 			username: "",
 			password: "",
-			text : ""
+			text : "",
+      showSnackbar: false,
+      snackbarMessage: "",
+      snackbarColor: "success"
 		};
 	},
-	methods: {
-		login: function() {
-			let data = {user:this.username,password:this.password};
-			let state = this;
-			this.rest.post('/login', data).then(function (response) {
-				console.log(response);
-				state.text = response.status;
-				localStorage.setItem("user", response.data);
-				// enforce refresh
-				state.$router.push( {path: '/'}).then( () => {state.$router.go();} );
-			}).catch(function (error) {
-				console.log(error);
-				state.text = error;
-			});
-		}
-	}
+  methods: {
+    login() {
+      let data = { user: this.username, password: this.password };
+      this.rest.post('/login', data)
+          .then(response => {
+            this.snackbarMessage = "Login erfolgreich!";
+            this.snackbarColor = "success";
+            this.showSnackbar = true;
+
+            this.text = response.status;
+            localStorage.setItem("user", response.data);
+
+            // enforce refresh
+            this.$router.push({ path: '/' }).then(() => {
+              this.$router.go();
+            });
+          })
+          .catch(error => {
+            console.log(error);
+            this.snackbarMessage = "Fehler beim Login. Bitte überprüfen Sie Ihre Anmeldedaten.";
+            this.snackbarColor = "error";
+            this.showSnackbar = true;
+          });
+    }
+  }
 }
 </script>

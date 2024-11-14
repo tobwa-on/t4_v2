@@ -17,6 +17,37 @@ const routes = [
 		name: 'login',
 		component: () => import(/* webpackChunkName: "login" */ '../views/LoginView.vue')
 	},
+	{
+		path: '/register',
+		name: 'register',
+		component: () => import(/* webpackChunkName: "login" */ '../views/RegisterView.vue')
+	},
+	{
+		path: '/changepassword',
+		name: 'changepassword',
+		component: () => import(/* webpackChunkName: "login" */ '../views/ChangePasswordView.vue')
+	},
+	{
+		path: '/watched',
+		name: 'watched',
+		component: () => import(/* webpackChunkName: "login" */ '../views/ChangePasswordView.vue')
+	},
+	{
+		path: '/watchlist',
+		name: 'watchlist',
+		component: () => import(/* webpackChunkName: "login" */ '../views/ChangePasswordView.vue')
+	},
+	{
+		path: '/changepassword',
+		name: 'changepassword',
+		component: () => import(/* webpackChunkName: "login" */ '../views/ChangePasswordView.vue')
+	},
+	{
+		path: '/adminview',
+		name: 'adminview',
+		component: () => import(/* webpackChunkName: "login" */ '../views/ChangePasswordView.vue')
+	},
+
 ]
 
 const router = createRouter({

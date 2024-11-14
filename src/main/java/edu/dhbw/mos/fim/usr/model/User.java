@@ -46,6 +46,10 @@ public class User
 		this.uid = uid;
 	}
 
+	public String getPassword() {
+		return password;
+	}
+
 	public void setPassword(final String password)
 	{
 		this.password = password;
@@ -85,6 +89,4 @@ public class User
 			return false;
 		return true;
 	}
-
-
 }

@@ -23,17 +23,6 @@ public class UserRepository implements PanacheRepository<User>
 	}
 
 	@Transactional
-	public void changePassword(final User user, final String password)
-	{
-		final User ufromDb = findByUid(user.getUid());
-
-		if (ufromDb != null)
-		{
-			ufromDb.setPassword(hashPassword(password));
-		}
-	}
-
-	@Transactional
 	public void createAndPersist(final String uid, final String password, final Collection<String> roles)
 	{
 		final var dbRoles = roles.stream().map(rs -> roleRepo.findByNameOrCreateNew(rs)).collect(Collectors.toSet());

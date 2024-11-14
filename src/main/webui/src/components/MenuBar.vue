@@ -13,10 +13,10 @@
     <v-btn to="/">Home</v-btn>
     <v-btn to="/favorites" v-if="Object.keys(user).length">Favoriten</v-btn>
     <v-btn to="/watchlist" v-if="Object.keys(user).length">Merkliste</v-btn>
-    <v-btn to="/watched" v-if="Object.keys(user).length">Geschaute Filme</v-btn>
-    <v-btn to="/changepassword" v-if="Object.keys(user).length">Passwort ändern</v-btn>
+    <v-btn to="/watched" v-if="Object.keys(user).length">Gesehene Filme</v-btn>
 
-    <v-btn to="/adminview" v-if="adminLoggedIn">Nutzer verwalten</v-btn>
+    <v-btn to="/adminview" v-if="adminLoggedIn">Nutzerverwaltung</v-btn>
+    <v-btn to="/register" v-if="!Object.keys(user).length">Registrieren</v-btn>
 
     <!-- Benutzer Dropdown oder Login -->
     <v-menu offset-y v-if="Object.keys(user).length">
@@ -24,6 +24,9 @@
         <v-btn v-bind="props">{{ user.upn }}</v-btn>
       </template>
       <v-list>
+        <v-list-item @click="router.push({ path: '/changepassword' })">
+          <v-list-item-title>Passwort ändern</v-list-item-title>
+        </v-list-item>
         <v-list-item @click="logOut">
           <v-list-item-title>Logout</v-list-item-title>
         </v-list-item>
