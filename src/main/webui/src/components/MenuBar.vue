@@ -70,13 +70,15 @@ async function decodeUserData() {
     } catch (error) {
       console.error(error);
     }
+  } else {
+    await router.push({path: '/'});
   }
 }
 
 function logOut() {
   localStorage.removeItem("user");
-  router.push({ path: '/' });
   adminLoggedIn.value = false;
+  router.push({ path: '/' });
   window.location.reload();
 }
 
