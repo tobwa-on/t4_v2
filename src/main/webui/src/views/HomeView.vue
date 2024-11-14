@@ -25,9 +25,9 @@ const popularMovies = ref([]);
 const detailDialog = ref(false);
 const movieDetails = ref({});
 
-const showSnackbar = ref(false);      // Zeigt die Snackbar an
-const snackbarMessage = ref('');      // Speichert die Nachricht der Snackbar
-const snackbarColor = ref('');       // Speichert die Farbe der Snackbar
+const showSnackbar = ref(false);
+const snackbarMessage = ref('');
+const snackbarColor = ref('');
 
 const fetchPopularMovies = async () => {
   try {

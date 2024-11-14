@@ -5,13 +5,12 @@
       :detailDialog="detailDialog"
       :movieDetails="movieDetails"
       @update:detailDialog="detailDialog = $event"
-      @showSnackbar="showSnackbar"
+      @showSnackbar="handleSnackbar"
   />
 
-  <v-snackbar v-model="showSuccess" timeout="3000" color="green" top>
-    Das Speichern war erfolgreich!
+  <v-snackbar v-model="showSnackbar" :color="snackbarColor" timeout="3000" top>
+    {{ snackbarMessage }}
   </v-snackbar>
-
 </template>
 
 <script setup>
@@ -22,7 +21,9 @@ import {getMovieDetails} from "@/services/tmdbService.js";
 
 const detailDialog = ref(false);
 const movieDetails = ref({});
-const showSuccess = ref(false);
+const showSnackbar = ref(false);
+const snackbarMessage = ref('');
+const snackbarColor = ref('');
 
 defineEmits(['showDetailDialog']);
 
@@ -36,10 +37,11 @@ const showMovieDetails = async (movieId) => {
   }
 };
 
-const showSnackbar = () => {
-  showSuccess.value = true;
+const handleSnackbar = ({ message, color }) => {
+  snackbarMessage.value = message;
+  snackbarColor.value = color;
+  showSnackbar.value = true;
 };
-
 </script>
 
 <style scoped>

@@ -43,7 +43,7 @@
 </template>
 
 <script setup>
-import {onMounted, ref} from "vue";
+import {defineEmits, onMounted, ref} from "vue";
 import UserService from "@/services/userService.js";
 import {getMoviesByStatus} from "@/services/movieStatusService.js";
 import {getImageUrl, getMovieDetails} from "@/services/tmdbService.js";
@@ -52,6 +52,7 @@ const watchlistMovies = ref([]);
 const resultMessage = ref("");
 const showSnackbar = ref(false);
 const snackbarColor = ref("success");
+const emit = defineEmits(['showSnackbar']);
 
 const fetchMovieDetails = async () => {
   try {
