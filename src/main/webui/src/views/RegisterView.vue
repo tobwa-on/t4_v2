@@ -4,7 +4,7 @@
 
 <script setup>
 
-import RegisterUser from "@/components/RegisterUser.vue";
+import RegisterUser from "@/components/user/RegisterUser.vue";
 </script>
 
 <style scoped>

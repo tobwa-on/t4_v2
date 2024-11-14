@@ -26,19 +26,6 @@ public class MovieStatusResource extends BasicRestCrudResource<MovieStatus, Movi
     @Inject
     private ReviewRepository reviewRepository;
 
-    @DELETE
-    @Path("/user={uid}/movie={movieId}")
-    @Transactional
-    public Response removeMovieStatus(@PathParam("uid") String uid, @PathParam("movieId") Long movieId) {
-        User user = userRepository.findByUid(uid);
-        MovieStatus movieStatus = movieStatusRepository.findByUserIdAndMovieId(user, movieId);
-        if (movieStatus == null) {
-            return Response.status(Response.Status.NOT_FOUND).entity("Movie status not found").build();
-        }
-        movieStatusRepository.delete(movieStatus);
-        return Response.noContent().build();
-    }
-
     @GET
     @Path("/user={uid}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -47,6 +34,22 @@ public class MovieStatusResource extends BasicRestCrudResource<MovieStatus, Movi
         List<MovieStatus> movieStatuses = movieStatusRepository.findByUserId(user);
         return Response.ok(movieStatuses).build();
     }
+
+    @GET
+    @Path("/user={uid}/status={status}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getAllMoviesByStatus (@PathParam("uid") String uid,
+                                          @PathParam("status") String status) {
+
+        User user = userRepository.findByUid(uid);
+        List<MovieStatus> movies = movieStatusRepository.findByUidAndStatus(user,status);
+        List<Long> movieIds = movies.stream()
+                .map(MovieStatus::getMovieId)
+                .toList();
+
+        return Response.ok(movieIds).build();
+    }
+
 
     @GET
     @Path("/user={uid}/movie={movieId}")
@@ -117,5 +120,18 @@ public class MovieStatusResource extends BasicRestCrudResource<MovieStatus, Movi
         public Boolean favorite;
         public Boolean watchlist;
         public Boolean watched;
+    }
+
+    @DELETE
+    @Path("/user={uid}/movie={movieId}")
+    @Transactional
+    public Response removeMovieStatus(@PathParam("uid") String uid, @PathParam("movieId") Long movieId) {
+        User user = userRepository.findByUid(uid);
+        MovieStatus movieStatus = movieStatusRepository.findByUserIdAndMovieId(user, movieId);
+        if (movieStatus == null) {
+            return Response.status(Response.Status.NOT_FOUND).entity("Movie status not found").build();
+        }
+        movieStatusRepository.delete(movieStatus);
+        return Response.noContent().build();
     }
 }

@@ -14,6 +14,10 @@ public class MovieStatusRepository extends BaseRepository<MovieStatus> {
         return find("uid = ?1 and movieId = ?2", user, movieId).firstResult();
     }
 
+    public List<MovieStatus> findByUidAndStatus(User user, String status) {
+        return list("uid = ?1 and " + status + " = true", user);
+    }
+
     public List<MovieStatus> findByUserId(User user) {
         return list("uid", user);
     }

@@ -1,5 +1,5 @@
 <template>
-  <FavoriteMovies @showDetailDialog="showMovieDetails"/>
+  <Watchlist @showDetailDialog="showMovieDetails"/>
 
   <MovieDetailsDialog
       :detailDialog="detailDialog"
@@ -8,14 +8,11 @@
       @showSnackbar="showSnackbar"
   />
 
-  <v-snackbar v-model="showSuccess" timeout="3000" color="green" top>
-    Das Speichern war erfolgreich!
-  </v-snackbar>
-
 </template>
 
 <script setup>
-import FavoriteMovies from "@/components/lists/FavoriteMovies.vue";
+
+import Watchlist from "@/components/lists/Watchlist.vue";
 import MovieDetailsDialog from "@/components/MovieDetailsDialog.vue";
 import {defineEmits, ref} from "vue";
 import {getMovieDetails} from "@/services/tmdbService.js";
@@ -39,9 +36,4 @@ const showMovieDetails = async (movieId) => {
 const showSnackbar = () => {
   showSuccess.value = true;
 };
-
 </script>
-
-<style scoped>
-
-</style>

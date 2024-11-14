@@ -9,6 +9,15 @@ export const getFavoriteMovies = async (uid) => {
     }
 };
 
+export const getMoviesByStatus = async (uid, status) => {
+    try {
+        const response = await apiService.get(`/moviestatus/user=${uid}/status=${status}`);
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+};
+
 export const getMovieStatus = async (uid, movieId) => {
     try {
         const response = await apiService.get(`/moviestatus/user=${uid}/movie=${movieId}`);

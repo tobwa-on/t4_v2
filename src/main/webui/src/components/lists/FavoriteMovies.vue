@@ -5,7 +5,7 @@
       <h2 class="font-weight-bold mb-0">Meine Favoriten</h2>
     </v-row>
 
-    <v-row v-if="favouriteMovies.length === 0" class="mt-4">
+    <v-row v-if="favoriteMovies.length === 0" class="mt-4">
       <v-col cols="12" class="text-center">
         <p>Bisher wurden keine Filme als Favorit gespeichert.</p>
       </v-col>
@@ -14,7 +14,7 @@
     <!-- Ergebnisse -->
     <v-row v-else class="mt-4" dense align-content="start">
       <v-col
-          v-for="movie in favouriteMovies"
+          v-for="movie in favoriteMovies"
           :key="movie.id"
           cols="4"
       >
@@ -44,10 +44,13 @@
 <script setup>
 import { onMounted, ref } from 'vue';
 import { getImageUrl, getMovieDetails } from '@/services/tmdbService.js';
-import { getFavoriteMovies } from "@/services/movieStatusService.js";
+import {getFavoriteMovies, getMoviesByStatus} from "@/services/movieStatusService.js";
 import UserService from "@/services/userService.js";
 
-const favouriteMovies = ref([]);
+const favoriteMovies = ref([]);
+const resultMessage = ref("");
+const showSnackbar = ref(false);
+const snackbarColor = ref("success");
 
 const fetchMovieDetails = async () => {
   try {
@@ -55,20 +58,29 @@ const fetchMovieDetails = async () => {
     const uid = user?.upn;
 
     if (!uid) {
-      console.error("Kein Benutzer angemeldet oder keine UID verfügbar.");
+      throwError("Kein Benutzer angemeldet oder keine UID verfügbar.")
       return;
     }
 
-    const favorites = await getFavoriteMovies(uid);
-    if (favorites && favorites.length > 0) {
-      const movieDetailsPromises = favorites.map(favorite => getMovieDetails(favorite.movieId));
+    const movieIds = await getMoviesByStatus(uid, 'favorite');
+
+    if (movieIds && movieIds.length > 0) {
+      const movieDetailsPromises = movieIds.map(id => getMovieDetails(id));
       const movies = await Promise.all(movieDetailsPromises);
-      favouriteMovies.value = movies.map(response => response.data);
+      favoriteMovies.value = movies.map(response => response.data);
     }
+
   } catch (error) {
+    throwError("Fehler beim Abrufen der Filmdetails")
     console.error("Fehler beim Abrufen der Filmdetails:", error);
   }
 };
+
+function throwError(errorMessage) {
+  resultMessage.value = errorMessage || "Fehler beim Abrufen der Filmdetails";
+  snackbarColor.value = "error";
+  showSnackbar.value = true;
+}
 
 onMounted(fetchMovieDetails);
 </script>

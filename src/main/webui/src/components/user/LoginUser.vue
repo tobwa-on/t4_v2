@@ -58,7 +58,6 @@ export default {
             this.text = response.status;
             localStorage.setItem("user", response.data);
 
-            // enforce refresh
             this.$router.push({ path: '/' }).then(() => {
               this.$router.go();
             });

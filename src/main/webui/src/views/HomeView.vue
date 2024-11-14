@@ -17,8 +17,8 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { getPopularMovies, getMovieDetails } from '@/services/tmdbService.js';
-import PopularMovies from "@/components/PopularMovies.vue";
-import SearchMovie from "@/components/SearchMovie.vue";
+import PopularMovies from "@/components/home/PopularMovies.vue";
+import SearchMovie from "@/components/home/SearchMovie.vue";
 import MovieDetailsDialog from "@/components/MovieDetailsDialog.vue";
 
 const popularMovies = ref([]);
