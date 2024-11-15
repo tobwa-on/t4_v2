@@ -31,7 +31,6 @@ public class MovieStatusResource extends BasicRestCrudResource<MovieStatus, Movi
     @GET
     @Path("/user={uid}/status={status}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({"user","admin"})
     public Response getAllMoviesByStatus (@PathParam("uid") String uid,
                                           @PathParam("status") String status) {
 
@@ -48,7 +47,6 @@ public class MovieStatusResource extends BasicRestCrudResource<MovieStatus, Movi
     @GET
     @Path("/user={uid}/movie={movieId}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({"user","admin"})
     public Response getMovieStatus(@PathParam("uid") String uid, @PathParam("movieId") Long movieId) {
         User user = userRepository.findByUid(uid);
         MovieStatus movieStatus = movieStatusRepository.findByUserIdAndMovieId(user, movieId);
@@ -66,7 +64,6 @@ public class MovieStatusResource extends BasicRestCrudResource<MovieStatus, Movi
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Transactional
-    @RolesAllowed({"user","admin"})
     public Response updateMovieStatus(@PathParam("uid") String uid, @PathParam("movieId") Long movieId, StatusUpdateRequest statusUpdateRequest) {
         User user = userRepository.findByUid(uid);
         if (user == null) {
@@ -124,7 +121,6 @@ public class MovieStatusResource extends BasicRestCrudResource<MovieStatus, Movi
     @DELETE
     @Path("/user={uid}/movie={movieId}")
     @Transactional
-    @RolesAllowed({"user","admin"})
     public Response removeMovieStatus(@PathParam("uid") String uid, @PathParam("movieId") Long movieId) {
         User user = userRepository.findByUid(uid);
         MovieStatus movieStatus = movieStatusRepository.findByUserIdAndMovieId(user, movieId);

@@ -210,15 +210,17 @@ const loadReviews = async () => {
 const handleSaveReview = async () => {
     checkUserLoggedIn();
 
-    if ((reviewText.value !== "" && reviewText.value !== null) && starRating.value === 0) {
+    if (reviewText.value && starRating.value === 0) {
       throwErrorMessage("Um eine Rezension zu speichern, ist eine Sternebewertung notwendig.");
       throw new Error(errorMessage.value);
     }
-    if (reviewText.value.length > 3000 ) {
-      throwErrorMessage("Maximale Rezensionslänge sind 3000 Zeichen");
-      throw new Error("Maximale Rezensionslänge sind 3000 Zeichen");
-    }
 
+    if (reviewText.value) {
+      if (reviewText.value.length > 3000) {
+        throwErrorMessage("Maximale Rezensionslänge sind 3000 Zeichen");
+        throw new Error("Maximale Rezensionslänge sind 3000 Zeichen");
+      }
+    }
 
     if (starRating.value !== 0){
         await saveOrUpdateReview(uid, props.movieDetails.id, starRating.value, reviewText.value);
@@ -226,7 +228,9 @@ const handleSaveReview = async () => {
     } else {
       if (await getReview(uid, props.movieDetails.id)) {
         await deleteReview(uid, props.movieDetails.id);
-      }
+    }
+
+
       emit('showSnackbar', { message: 'Keine Rezension gespeichert', color: 'grey' });
     }
 };
@@ -272,6 +276,26 @@ watch(
         getExistingMovieStatus();
         getExistingReview();
         loadReviews();
+      }
+    }
+);
+
+watch(
+    () => starRating.value,
+    async (newValue) => {
+      if (newValue > 0) {
+        isWatched.value = true;
+
+        try {
+          await updateMovieStatus(uid, props.movieDetails.id, {
+            favorite: isFavorite.value,
+            watchlist: isInWatchlist.value,
+            watched: isWatched.value,
+          });
+        } catch (error) {
+          console.error("Fehler beim Aktualisieren des Status:", error);
+          throwErrorMessage("Es gab ein Problem beim Speichern des Status.");
+        }
       }
     }
 );

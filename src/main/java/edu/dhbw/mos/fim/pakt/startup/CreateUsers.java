@@ -23,10 +23,10 @@ public class CreateUsers
 	{
 		if (userRepo.count() == 0)
 		{
-			userRepo.createAndPersist("admin", "on23", Set.of("user", "admin"));
-			userRepo.createAndPersist("admin2", "on23", Set.of("user", "admin"));
-			userRepo.createAndPersist("user", "on23", Set.of("user"));
-			userRepo.createAndPersist("user2", "on23", Set.of("user"));
+			userRepo.createAndPersist("admin", "root", Set.of("user", "admin"));
+			userRepo.createAndPersist("admin2", "root2", Set.of("user", "admin"));
+			userRepo.createAndPersist("user", "user", Set.of("user"));
+			userRepo.createAndPersist("user2", "user2", Set.of("user"));
 		}
 	}
 }

@@ -29,7 +29,6 @@ public class ReviewResource {
     @GET
     @Path("/user={uid}/movie={movieId}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({"user","admin"})
     public Response getReviewByUserAndMovie(@PathParam("uid") String uid, @PathParam("movieId") Long movieId) {
         User user = userRepository.findByUid(uid);
 
@@ -44,7 +43,6 @@ public class ReviewResource {
     @GET
     @Path("/movie={movieId}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({"user","admin"})
     public Response getAllReviews(@PathParam("movieId") Long movieId) {
         List<Review> reviews = reviewRepository.findByMovieId(movieId);
 
@@ -61,7 +59,6 @@ public class ReviewResource {
     @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({"user","admin"})
     public Response saveOrUpdateReview(Review review) {
 
         User user = review.getUid();
@@ -91,7 +88,6 @@ public class ReviewResource {
     @Path("/user={uid}/movie={movieId}")
     @Produces(MediaType.APPLICATION_JSON)
     @Transactional
-    @RolesAllowed({"user","admin"})
     public Response deleteReview(@PathParam("uid") String uid, @PathParam("movieId") Long movieId) {
         User user = userRepository.findByUid(uid);
         Review review = reviewRepository.findByUserIdAndMovieId(user, movieId);
