@@ -19,7 +19,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.SecurityContext;
 
 /**
- *
+ * author auch
  */
 @Path("/securetest")
 @RequestScoped

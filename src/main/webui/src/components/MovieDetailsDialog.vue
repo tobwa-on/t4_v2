@@ -214,9 +214,13 @@ const handleSaveReview = async () => {
       throwErrorMessage("Um eine Rezension zu speichern, ist eine Sternebewertung notwendig.");
       throw new Error(errorMessage.value);
     }
+    if (reviewText.value.length > 3000 ) {
+      throwErrorMessage("Maximale Rezensionslänge sind 3000 Zeichen");
+      throw new Error("Maximale Rezensionslänge sind 3000 Zeichen");
+    }
+
 
     if (starRating.value !== 0){
-      // Review speichern oder aus DB loeschen
         await saveOrUpdateReview(uid, props.movieDetails.id, starRating.value, reviewText.value);
         emit('showSnackbar', { message: 'Die Rezension wurde erfolgreich gespeichert!', color: 'green' });
     } else {

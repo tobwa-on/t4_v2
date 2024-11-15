@@ -6,6 +6,7 @@ import edu.dhbw.mos.fim.pakt.model.MovieStatus;
 import edu.dhbw.mos.fim.pakt.model.Review;
 import edu.dhbw.mos.fim.usr.db.UserRepository;
 import edu.dhbw.mos.fim.usr.model.User;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.*;
@@ -26,18 +27,11 @@ public class MovieStatusResource extends BasicRestCrudResource<MovieStatus, Movi
     @Inject
     private ReviewRepository reviewRepository;
 
-    @GET
-    @Path("/user={uid}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getMovieStatusesByUserId(@PathParam("uid") String uid) {
-        User user = userRepository.findByUid(uid);
-        List<MovieStatus> movieStatuses = movieStatusRepository.findByUserId(user);
-        return Response.ok(movieStatuses).build();
-    }
-
+    // Liefert eine Liste aller Film-IDs für einen bestimmten Benutzer und Status
     @GET
     @Path("/user={uid}/status={status}")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed({"user","admin"})
     public Response getAllMoviesByStatus (@PathParam("uid") String uid,
                                           @PathParam("status") String status) {
 
@@ -50,10 +44,11 @@ public class MovieStatusResource extends BasicRestCrudResource<MovieStatus, Movi
         return Response.ok(movieIds).build();
     }
 
-
+    // Gibt den Filmstatus (Favorit, Watchlist, Gesehen) für einen Benutzer und Film zurück
     @GET
     @Path("/user={uid}/movie={movieId}")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed({"user","admin"})
     public Response getMovieStatus(@PathParam("uid") String uid, @PathParam("movieId") Long movieId) {
         User user = userRepository.findByUid(uid);
         MovieStatus movieStatus = movieStatusRepository.findByUserIdAndMovieId(user, movieId);
@@ -65,11 +60,13 @@ public class MovieStatusResource extends BasicRestCrudResource<MovieStatus, Movi
                 .build();
     }
 
+    // Aktualisiert den Filmstatus für einen Benutzer und Film, ggf. mit bestehendem Review
     @PUT
     @Path("/user/{uid}/movie/{movieId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Transactional
+    @RolesAllowed({"user","admin"})
     public Response updateMovieStatus(@PathParam("uid") String uid, @PathParam("movieId") Long movieId, StatusUpdateRequest statusUpdateRequest) {
         User user = userRepository.findByUid(uid);
         if (user == null) {
@@ -103,7 +100,7 @@ public class MovieStatusResource extends BasicRestCrudResource<MovieStatus, Movi
         return Response.ok(new StatusResponse(movieStatus.isFavorite(), movieStatus.isWatchlist(), movieStatus.isWatched())).build();
     }
 
-
+    // Antwortmodell für den Status-Rückgabewert
     public static class StatusResponse {
         public boolean favorite;
         public boolean watchlist;
@@ -116,15 +113,18 @@ public class MovieStatusResource extends BasicRestCrudResource<MovieStatus, Movi
         }
     }
 
+    // Anforderungsmodell für die Status-Aktualisierung
     public static class StatusUpdateRequest {
         public Boolean favorite;
         public Boolean watchlist;
         public Boolean watched;
     }
 
+    // Löscht den Filmstatus-Eintrag für einen Benutzer und Film
     @DELETE
     @Path("/user={uid}/movie={movieId}")
     @Transactional
+    @RolesAllowed({"user","admin"})
     public Response removeMovieStatus(@PathParam("uid") String uid, @PathParam("movieId") Long movieId) {
         User user = userRepository.findByUid(uid);
         MovieStatus movieStatus = movieStatusRepository.findByUserIdAndMovieId(user, movieId);

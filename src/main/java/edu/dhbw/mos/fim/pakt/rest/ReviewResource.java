@@ -6,6 +6,7 @@ import edu.dhbw.mos.fim.pakt.model.MovieStatus;
 import edu.dhbw.mos.fim.pakt.model.Review;
 import edu.dhbw.mos.fim.usr.db.UserRepository;
 import edu.dhbw.mos.fim.usr.model.User;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.*;
@@ -24,11 +25,43 @@ public class ReviewResource {
     @Inject
     private MovieStatusRepository movieStatusRepository;
 
+    // Holt eine einzelne Review eines Benutzers für einen bestimmten Film
+    @GET
+    @Path("/user={uid}/movie={movieId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed({"user","admin"})
+    public Response getReviewByUserAndMovie(@PathParam("uid") String uid, @PathParam("movieId") Long movieId) {
+        User user = userRepository.findByUid(uid);
+
+        Review review = reviewRepository.findByUserIdAndMovieId(user, movieId);
+        if (review == null) {
+            return Response.status(Response.Status.NO_CONTENT).build();
+        }
+        return Response.ok(review).build();
+    }
+
+    // Gibt alle Reviews für einen bestimmten Film zurück
+    @GET
+    @Path("/movie={movieId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed({"user","admin"})
+    public Response getAllReviews(@PathParam("movieId") Long movieId) {
+        List<Review> reviews = reviewRepository.findByMovieId(movieId);
+
+        if (reviews == null || reviews.isEmpty()) {
+            return Response.status(Response.Status.NO_CONTENT).build();
+        }
+
+        return Response.ok(reviews).build();
+    }
+
+    // Speichert eine neue Review oder aktualisiert eine bestehende Review
     @POST
     @Path("/saveOrUpdate")
     @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed({"user","admin"})
     public Response saveOrUpdateReview(Review review) {
 
         User user = review.getUid();
@@ -53,36 +86,12 @@ public class ReviewResource {
         return Response.ok(existingReview).build();
     }
 
-    @GET
-    @Path("/user={uid}/movie={movieId}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getReviewByUserAndMovie(@PathParam("uid") String uid, @PathParam("movieId") Long movieId) {
-        User user = userRepository.findByUid(uid);
-
-        Review review = reviewRepository.findByUserIdAndMovieId(user, movieId);
-        if (review == null) {
-            return Response.status(Response.Status.NO_CONTENT).build();
-        }
-        return Response.ok(review).build();
-    }
-
-    @GET
-    @Path("/movie={movieId}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getAllReviews(@PathParam("movieId") Long movieId) {
-        List<Review> reviews = reviewRepository.findByMovieId(movieId);
-
-        if (reviews == null || reviews.isEmpty()) {
-            return Response.status(Response.Status.NO_CONTENT).build();
-        }
-
-        return Response.ok(reviews).build();
-    }
-
+    // Löscht eine Review für einen bestimmten Benutzer und Film
     @DELETE
     @Path("/user={uid}/movie={movieId}")
     @Produces(MediaType.APPLICATION_JSON)
     @Transactional
+    @RolesAllowed({"user","admin"})
     public Response deleteReview(@PathParam("uid") String uid, @PathParam("movieId") Long movieId) {
         User user = userRepository.findByUid(uid);
         Review review = reviewRepository.findByUserIdAndMovieId(user, movieId);

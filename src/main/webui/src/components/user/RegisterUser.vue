@@ -87,16 +87,20 @@ const register = async () => {
 
   try {
     const response = await registerNewUser(username.value, password.value);
-
+    console.log(response)
     if (response.success) {
       resultMessage.value = "Registrierung erfolgreich.";
       snackbarColor.value = "success";
       showSnackbar.value = true;
 
-      const currentUser = UserService.getUser();
-      const userRoles = await UserService.getUserRole(currentUser?.upn || "");
+      let currentUser = UserService.getUser();
+      let userRoles = null;
 
-      if (userRoles.includes("admin")) {
+      if (Object.keys(currentUser).length !== 0) {
+        userRoles = await UserService.getUserRole(currentUser.upn || "");
+      }
+
+      if (Object.keys(currentUser).length !== 0 || ( userRoles !== null && userRoles.includes("admin"))) {
         await router.push({ path: '/usermanagement' });
       } else {
         await router.push({ path: '/login' });

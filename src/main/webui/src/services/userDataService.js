@@ -29,6 +29,8 @@ export const registerNewUser = async (username, password) => {
         const response = await apiService.post('/user/register', params, {
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
         });
+
+        console.log(response)
         return { success: true, message: response.data.message };
     } catch (error) {
         return { success: false, message: error.response?.data || "Registrierung fehlgeschlagen" };
