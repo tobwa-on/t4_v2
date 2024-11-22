@@ -28,13 +28,11 @@
         </v-form>
       </v-card-item>
     </v-card>
-    <v-snackbar v-model="showSnackbar" :color="snackbarColor" top right>
-      {{ snackbarMessage }}
-    </v-snackbar>
   </v-container>
 </template>
 <script>
-import UserService from "@/services/userService.js"; // Importiere deinen UserService zur Statusprüfung
+import UserService from "@/services/userService.js";
+import {toast} from "vue3-toastify";
 
 export default {
   data() {
@@ -42,9 +40,6 @@ export default {
       username: "",
       password: "",
       text: "",
-      showSnackbar: false,
-      snackbarMessage: "",
-      snackbarColor: "success"
     };
   },
   async beforeMount() {
@@ -58,9 +53,10 @@ export default {
       let data = { user: this.username, password: this.password };
       this.rest.post('/login', data)
           .then(response => {
-            this.snackbarMessage = "Login erfolgreich!";
-            this.snackbarColor = "success";
-            this.showSnackbar = true;
+            toast.success("Login erfolgreich", {
+              position: 'top-right',
+              autoClose: 3000,
+            });
 
             this.text = response.status;
             localStorage.setItem("user", response.data);
@@ -71,9 +67,10 @@ export default {
           })
           .catch(error => {
             console.error(error);
-            this.snackbarMessage = "Fehler beim Login. Bitte überprüfen Sie Ihre Anmeldedaten.";
-            this.snackbarColor = "error";
-            this.showSnackbar = true;
+            toast.error("Fehler beim Login", {
+              position: 'top-right',
+              autoClose: 3000,
+            });
           });
     }
   }

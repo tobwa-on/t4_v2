@@ -47,11 +47,6 @@
         </v-form>
       </v-card-item>
     </v-card>
-
-    <!-- Snackbar für Ergebnisanzeige -->
-    <v-snackbar v-model="showSnackbar" :color="snackbarColor" top right>
-      {{ resultMessage }}
-    </v-snackbar>
   </v-container>
 </template>
 
@@ -60,13 +55,11 @@ import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { changePassword } from "@/services/userDataService.js";
 import UserService from "@/services/userService.js";
+import {toast} from "vue3-toastify";
 
 const currentPassword = ref("");
 const newPassword = ref("");
 const confirmPassword = ref("");
-const resultMessage = ref("");
-const showSnackbar = ref(false);
-const snackbarColor = ref("success");
 const username = ref(UserService.getUser().upn);
 
 const router = useRouter();
@@ -89,18 +82,21 @@ const handleChangePassword = async () => {
       return;
     }
 
-    resultMessage.value = "Passwort erfolgreich geändert.";
-    snackbarColor.value = "success";
-    showSnackbar.value = true;
+
+    toast.success("Passwort erfolgreich geändert.", {
+      position: 'top-right',
+      autoClose: 3000,
+    });
     await router.push({path: '/'});
   } catch (error) {
     throwError(error.response);
   }
 };
 
-function throwError(errorMessage) {
-  resultMessage.value = errorMessage || "Fehler beim Ändern des Passworts.";
-  snackbarColor.value = "error";
-  showSnackbar.value = true;
+function throwError(message) {
+  toast.error(message, {
+    position: 'top-right',
+    autoClose: 3000,
+  });
 }
 </script>

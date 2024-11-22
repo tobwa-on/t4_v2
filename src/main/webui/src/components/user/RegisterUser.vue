@@ -38,11 +38,6 @@
         </v-form>
       </v-card-item>
     </v-card>
-
-    <!-- Snackbar für Ergebnisanzeige -->
-    <v-snackbar v-model="showSnackbar" :color="snackbarColor" top right>
-      {{ resultMessage }}
-    </v-snackbar>
   </v-container>
 </template>
 
@@ -51,13 +46,11 @@ import {ref, onMounted} from 'vue';
 import {useRouter} from 'vue-router';
 import {registerNewUser} from "@/services/userDataService.js";
 import UserService from "@/services/userService.js";
+import {toast} from "vue3-toastify";
 
 const username = ref("");
 const password = ref("");
 const confirmPassword = ref("");
-const resultMessage = ref("");
-const showSnackbar = ref(false);
-const snackbarColor = ref("success");
 
 const router = useRouter();
 
@@ -89,9 +82,10 @@ const register = async () => {
     const response = await registerNewUser(username.value, password.value);
     console.log(response)
     if (response.success) {
-      resultMessage.value = "Registrierung erfolgreich.";
-      snackbarColor.value = "success";
-      showSnackbar.value = true;
+      toast.success("Registrierung erfolgreich.", {
+        position: 'top-right',
+        autoClose: 3000,
+      });
 
       let currentUser = UserService.getUser();
       let userRoles = null;
@@ -113,9 +107,10 @@ const register = async () => {
   }
 };
 
-function throwError(errorMessage) {
-  resultMessage.value = errorMessage || "Fehler bei der Registrierung.";
-  snackbarColor.value = "error";
-  showSnackbar.value = true;
+function throwError(message) {
+  toast.error(message, {
+    position: 'top-right',
+    autoClose: 3000,
+  });
 }
 </script>

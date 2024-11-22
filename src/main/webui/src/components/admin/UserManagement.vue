@@ -52,10 +52,6 @@
         </v-card>
       </v-row>
     </v-dialog>
-
-    <v-snackbar v-model="showSnackbar" tile :color="snackbarColor" top right>
-      {{ snackbarMessage }}
-    </v-snackbar>
   </v-container>
 </template>
 
@@ -63,11 +59,9 @@
 import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import { deleteUser, fetchAllUsers } from "@/services/userDataService.js";
+import {toast} from "vue3-toastify";
 
 const users = ref([]);
-const showSnackbar = ref(false);
-const snackbarMessage = ref("");
-const snackbarColor = ref("success");
 const showDialog = ref(false);
 const selectedUser = ref(null);
 
@@ -87,9 +81,11 @@ const loadUsers = async () => {
       roles: user.roles
     }));
   } catch (error) {
-    snackbarMessage.value = "Fehler beim Abrufen der Benutzer.";
-    snackbarColor.value = "error";
-    showSnackbar.value = true;
+    toast.error("Fehler beim Abrufen der Benutzer.", {
+      position: 'top-right',
+      autoClose: 3000,
+    });
+    throw new Error(error);
   }
 };
 
@@ -107,14 +103,17 @@ const handleDeleteUser = async (uid) => {
   showDialog.value = false;
   try {
     await deleteUser(uid);
-    snackbarMessage.value = "Benutzer erfolgreich gelöscht.";
-    snackbarColor.value = "success";
-    showSnackbar.value = true;
+    toast.success("Benutzer erfolgreich gelöscht.", {
+      position: 'top-right',
+      autoClose: 3000,
+    });
     await loadUsers();
   } catch (error) {
-    snackbarMessage.value = "Fehler beim Löschen des Benutzers.";
-    snackbarColor.value = "error";
-    showSnackbar.value = true;
+    toast.error("Fehler beim Löschen des Benutzers.", {
+      position: 'top-right',
+      autoClose: 3000,
+    });
+
   }
 };
 

@@ -5,12 +5,7 @@
       :detailDialog="detailDialog"
       :movieDetails="movieDetails"
       @update:detailDialog="detailDialog = $event"
-      @showSnackbar="handleSnackbar"
   />
-
-  <v-snackbar v-model="showSnackbar" :color="snackbarColor" timeout="3000" top>
-    {{ snackbarMessage }}
-  </v-snackbar>
 </template>
 
 <script setup>
@@ -21,9 +16,6 @@ import {getMovieDetails} from "@/services/tmdbService.js";
 
 const detailDialog = ref(false);
 const movieDetails = ref({});
-const showSnackbar = ref(false);
-const snackbarMessage = ref('');
-const snackbarColor = ref('');
 
 defineEmits(['showDetailDialog']);
 
@@ -37,11 +29,6 @@ const showMovieDetails = async (movieId) => {
   }
 };
 
-const handleSnackbar = ({ message, color }) => {
-  snackbarMessage.value = message;
-  snackbarColor.value = color;
-  showSnackbar.value = true;
-};
 </script>
 
 <style scoped>

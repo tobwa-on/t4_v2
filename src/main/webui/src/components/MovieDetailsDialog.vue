@@ -1,9 +1,6 @@
 <template>
   <v-dialog v-model="detailDialog" max-width="1200px" persistent>
     <v-card>
-      <v-snackbar v-model="showError" timeout="3000" color="red" top>
-        {{ errorMessage }}
-      </v-snackbar>
       <v-row no-gutters justify="center" align="center" class="pl-4 mt-4">
         <v-col cols="2">
           <v-img :src="getImageUrl(movieDetails.poster_path)" height="300px"></v-img>
@@ -124,22 +121,21 @@ import {getImageUrl} from '@/services/tmdbService.js';
 import {deleteMovieStatus, getMovieStatus, updateMovieStatus} from '@/services/movieStatusService.js';
 import UserService from "@/services/userService.js";
 import {deleteReview, getAllReviews, getReview, saveOrUpdateReview} from "@/services/reviewService.js";
+import {toast} from "vue3-toastify";
 
 const props = defineProps({
   detailDialog: Boolean,
   movieDetails: Object,
 });
 
-const emit = defineEmits(['update:detailDialog', 'showSnackbar']);
+const emit = defineEmits(['update:detailDialog']);
 const detailDialog = ref(props.detailDialog);
 const uid = UserService.getUser().upn;
-const showError = ref(false);
 
 const starRating = ref(0);
 const reviewText = ref(null);
 const reviews = ref([]);
 const showReviews = ref(false)
-const errorMessage = ref('');
 
 const isFavorite = ref(false);
 const isWatched = ref(false);
@@ -147,14 +143,16 @@ const isInWatchlist = ref(false);
 
 
 function throwErrorMessage(message) {
-  showError.value = true;
-  errorMessage.value = message;
+  toast.error(message, {
+    position: 'top-right',
+    autoClose: 3000,
+  });
+  throw new Error(message);
 }
 
 function checkUserLoggedIn() {
   if(!uid) {
     throwErrorMessage("Für diese Aktion musst du angemeldet sein");
-    throw new Error(errorMessage.value);
   }
 }
 
@@ -201,9 +199,11 @@ const getExistingReview = async () => {
 const loadReviews = async () => {
   try {
     const allReviews = await getAllReviews(props.movieDetails.id);
-    reviews.value = allReviews.filter(review => review.rating !== 0);
+    if (allReviews){
+      reviews.value = allReviews.filter(review => review.rating !== 0);
+    }
   } catch (error) {
-
+    console.error(error);
   }
 };
 
@@ -212,26 +212,30 @@ const handleSaveReview = async () => {
 
     if (reviewText.value && starRating.value === 0) {
       throwErrorMessage("Um eine Rezension zu speichern, ist eine Sternebewertung notwendig.");
-      throw new Error(errorMessage.value);
     }
 
     if (reviewText.value) {
       if (reviewText.value.length > 3000) {
         throwErrorMessage("Maximale Rezensionslänge sind 3000 Zeichen");
-        throw new Error("Maximale Rezensionslänge sind 3000 Zeichen");
       }
     }
 
     if (starRating.value !== 0){
         await saveOrUpdateReview(uid, props.movieDetails.id, starRating.value, reviewText.value);
-        emit('showSnackbar', { message: 'Die Rezension wurde erfolgreich gespeichert!', color: 'green' });
+        toast.success('Die Rezension wurde erfolgreich gespeichert!', {
+          position: 'top-right',
+          autoClose: 3000,
+        });
     } else {
       if (await getReview(uid, props.movieDetails.id)) {
         await deleteReview(uid, props.movieDetails.id);
     }
 
+      toast.info('Keine Rezension gespeichert', {
+        position: 'top-right',
+        autoClose: 3000,
+      });
 
-      emit('showSnackbar', { message: 'Keine Rezension gespeichert', color: 'grey' });
     }
 };
 
@@ -262,7 +266,6 @@ function setFieldsAtExit() {
   isWatched.value = false;
   isInWatchlist.value = false;
   reviewText.value = "";
-  showError.value = false;
   showReviews.value = false;
   starRating.value = 0;
   reviews.value = [];

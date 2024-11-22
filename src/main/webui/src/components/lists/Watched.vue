@@ -38,7 +38,6 @@
         </v-row>
       </v-col>
     </v-row>
-
   </v-container>
 </template>
 
@@ -47,11 +46,9 @@ import {computed, onMounted, ref} from "vue";
 import UserService from "@/services/userService.js";
 import {getMoviesByStatus} from "@/services/movieStatusService.js";
 import {getImageUrl, getMovieDetails} from "@/services/tmdbService.js";
+import {toast} from "vue3-toastify";
 
 const watchedMovies = ref([]);
-const resultMessage = ref("");
-const showSnackbar = ref(false);
-const snackbarColor = ref("success");
 
 const fetchMovieDetails = async () => {
   try {
@@ -88,11 +85,14 @@ const sortedMovies = computed(() => {
 
 onMounted(fetchMovieDetails);
 
-function throwError(errorMessage) {
-  resultMessage.value = errorMessage || "Fehler beim Abrufen der Filmdetails";
-  snackbarColor.value = "error";
-  showSnackbar.value = true;
+function throwError(message) {
+  toast.error(message, {
+    position: 'top-right',
+    autoClose: 3000,
+  });
+  throw new Error(message);
 }
+
 </script>
 
 <style scoped>

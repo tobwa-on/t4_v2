@@ -6,12 +6,7 @@
         :detailDialog="detailDialog"
         :movieDetails="movieDetails"
         @update:detailDialog="detailDialog = $event"
-        @showSnackbar="handleSnackbar"
     />
-
-    <v-snackbar v-model="showSnackbar" :color="snackbarColor" timeout="3000" top>
-      {{ snackbarMessage }}
-    </v-snackbar>
 </template>
 
 <script setup>
@@ -25,10 +20,6 @@ const popularMovies = ref([]);
 const detailDialog = ref(false);
 const movieDetails = ref({});
 
-const showSnackbar = ref(false);
-const snackbarMessage = ref('');
-const snackbarColor = ref('');
-
 const fetchPopularMovies = async () => {
   try {
     const response = await getPopularMovies();
@@ -37,6 +28,7 @@ const fetchPopularMovies = async () => {
     console.error("Fehler beim Abrufen der beliebten Filme:", error);
   }
 };
+
 onMounted(fetchPopularMovies);
 
 const showMovieDetails = async (movieId) => {
@@ -49,10 +41,6 @@ const showMovieDetails = async (movieId) => {
   }
 };
 
-const handleSnackbar = ({ message, color }) => {
-  snackbarMessage.value = message;    // Setzt die Nachricht
-  snackbarColor.value = color;        // Setzt die Farbe
-  showSnackbar.value = true;          // Zeigt die Snackbar an
-};
+
 
 </script>
