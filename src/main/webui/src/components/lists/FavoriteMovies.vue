@@ -5,7 +5,7 @@
       <h2 class="font-weight-bold mb-0">Meine Favoriten</h2>
     </v-row>
 
-    <v-row v-if="favoriteMovies.length === 0" class="mt-4">
+    <v-row v-if="sortedMovies.length === 0" class="mt-4">
       <v-col cols="12" class="text-center">
         <p>Bisher wurden keine Filme als Favorit gespeichert.</p>
       </v-col>
@@ -14,7 +14,7 @@
     <!-- Ergebnisse -->
     <v-row v-else class="mt-4" dense align-content="start">
       <v-col
-          v-for="movie in favoriteMovies"
+          v-for="movie in sortedMovies"
           :key="movie.id"
           cols="4"
       >
@@ -42,12 +42,12 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue';
-import { getImageUrl, getMovieDetails } from '@/services/tmdbService.js';
-import { getMoviesByStatus} from "@/services/movieStatusService.js";
+import {computed, onMounted, ref} from "vue";
 import UserService from "@/services/userService.js";
+import {getMoviesByStatus} from "@/services/movieStatusService.js";
+import {getImageUrl, getMovieDetails} from "@/services/tmdbService.js";
 
-const favoriteMovies = ref([]);
+const watchedMovies = ref([]);
 const resultMessage = ref("");
 const showSnackbar = ref(false);
 const snackbarColor = ref("success");
@@ -58,29 +58,37 @@ const fetchMovieDetails = async () => {
     const uid = user?.upn;
 
     if (!uid) {
-      throwError("Kein Benutzer angemeldet oder keine UID verfügbar.")
+      throwError("Kein Benutzer angemeldet oder keine UID verfügbar.");
       return;
     }
 
-    const movieIds = await getMoviesByStatus(uid, 'favorite');
+    // Abrufen der Daten mit favorite Status
+    const movieData = await getMoviesByStatus(uid, "favorite");
+    const movieDetailsPromises = movieData.map(async (movie) => {
+      const response = await getMovieDetails(movie.movieId);
+      return {
+        ...response.data, // Details aus TMDB
+        favoriteAt: new Date(movie.favoriteAt),
+      };
+    });
 
-    if (movieIds && movieIds.length > 0) {
-      const movieDetailsPromises = movieIds.map(id => getMovieDetails(id));
-      const movies = await Promise.all(movieDetailsPromises);
-      favoriteMovies.value = movies.map(response => response.data);
-    }
-
+    watchedMovies.value = await Promise.all(movieDetailsPromises);
   } catch (error) {
-    throwError("Fehler beim Abrufen der Filmdetails")
+    throwError("Fehler beim Abrufen der Filmdetails.");
     console.error("Fehler beim Abrufen der Filmdetails:", error);
   }
 };
+
+// Computed Property für die Sortierung nach watchedAt
+const sortedMovies = computed(() => {
+  return watchedMovies.value.slice().sort((a, b) => b.favoriteAt - a.favoriteAt);
+});
+
+onMounted(fetchMovieDetails);
 
 function throwError(errorMessage) {
   resultMessage.value = errorMessage || "Fehler beim Abrufen der Filmdetails";
   snackbarColor.value = "error";
   showSnackbar.value = true;
 }
-
-onMounted(fetchMovieDetails);
 </script>

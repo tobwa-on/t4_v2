@@ -4,6 +4,8 @@ import edu.dhbw.mos.fim.usr.model.User;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
+import java.time.LocalDateTime;
+
 @Entity
 public class MovieStatus {
 
@@ -33,6 +35,15 @@ public class MovieStatus {
     @Column(nullable = false)
     private boolean watched = false;
 
+    @Column
+    private LocalDateTime watchedAt;
+
+    @Column
+    private LocalDateTime favoriteAt;
+
+    @Column
+    private LocalDateTime watchlistAt;
+
     public MovieStatus() {}
 
     public Long getId() { return id; }
@@ -55,4 +66,14 @@ public class MovieStatus {
 
     public Review getReview() { return review; }
     public void setReview(Review review) { this.review = review; }
+
+    public LocalDateTime getWatchedAt() { return watchedAt; }
+    public void setWatchedAt(LocalDateTime watchedAt) { this.watchedAt = watchedAt; }
+
+    public LocalDateTime getWatchlistAt() { return watchedAt; }
+    public void setWatchlistAt(LocalDateTime watchedAt) { this.watchedAt = watchedAt; }
+
+    public LocalDateTime getFavoriteAt() { return watchedAt; }
+    public void setFavoriteAt(LocalDateTime watchedAt) { this.watchedAt = watchedAt; }
+
 }

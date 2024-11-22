@@ -13,7 +13,10 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Path("/moviestatus")
 public class MovieStatusResource extends BasicRestCrudResource<MovieStatus, MovieStatusRepository> {
@@ -31,16 +34,29 @@ public class MovieStatusResource extends BasicRestCrudResource<MovieStatus, Movi
     @GET
     @Path("/user={uid}/status={status}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getAllMoviesByStatus (@PathParam("uid") String uid,
-                                          @PathParam("status") String status) {
+    public Response getAllMoviesByStatus(@PathParam("uid") String uid,
+                                         @PathParam("status") String status) {
 
         User user = userRepository.findByUid(uid);
-        List<MovieStatus> movies = movieStatusRepository.findByUidAndStatus(user,status);
-        List<Long> movieIds = movies.stream()
-                .map(MovieStatus::getMovieId)
+        if (user == null) {
+            return Response.status(Response.Status.NOT_FOUND).entity("User not found").build();
+        }
+
+        List<MovieStatus> movies = movieStatusRepository.findByUidAndStatus(user, status);
+
+        List<Map<String, Object>> result = movies.stream()
+                .map(movie -> {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("movieId", movie.getMovieId());
+                    map.put("watchedAt", movie.getWatchedAt());
+                    map.put("favoriteAt", movie.getFavoriteAt());
+                    map.put("watchlistAt", movie.getWatchlistAt());
+                    return map;
+                })
                 .toList();
 
-        return Response.ok(movieIds).build();
+        return Response.ok(result).build();
+
     }
 
     // Gibt den Filmstatus (Favorit, Watchlist, Gesehen) für einen Benutzer und Film zurück
@@ -77,7 +93,6 @@ public class MovieStatusResource extends BasicRestCrudResource<MovieStatus, Movi
             movieStatus = new MovieStatus();
             movieStatus.setUid(user);
             movieStatus.setMovieId(movieId);
-            // was mach ich hier eigentlich?
             if (existingReview != null) {
                 movieStatus.setReview(existingReview);
             }
@@ -85,17 +100,35 @@ public class MovieStatusResource extends BasicRestCrudResource<MovieStatus, Movi
 
         if (statusUpdateRequest.favorite != null) {
             movieStatus.setFavorite(statusUpdateRequest.favorite);
+            if (statusUpdateRequest.favorite) {
+                movieStatus.setFavoriteAt(LocalDateTime.now());  // Setzt `favoriteAt`, wenn `favorite` true ist
+            } else {
+                movieStatus.setFavoriteAt(null);  // Setzt `favoriteAt` auf null, wenn `favorite` false ist
+            }
         }
+
         if (statusUpdateRequest.watchlist != null) {
             movieStatus.setWatchlist(statusUpdateRequest.watchlist);
+            if (statusUpdateRequest.watchlist) {
+                movieStatus.setWatchlistAt(LocalDateTime.now());  // Setzt `watchlistAt`, wenn `watchlist` true ist
+            } else {
+                movieStatus.setWatchlistAt(null);  // Setzt `watchlistAt` auf null, wenn `watchlist` false ist
+            }
         }
+
         if (statusUpdateRequest.watched != null) {
             movieStatus.setWatched(statusUpdateRequest.watched);
+            if (statusUpdateRequest.watched) {
+                movieStatus.setWatchedAt(LocalDateTime.now());  // Setzt `watchedAt`, wenn `watched` true ist
+            } else {
+                movieStatus.setWatchedAt(null);  // Setzt `watchedAt` auf null, wenn `watched` false ist
+            }
         }
 
         movieStatusRepository.persist(movieStatus);
         return Response.ok(new StatusResponse(movieStatus.isFavorite(), movieStatus.isWatchlist(), movieStatus.isWatched())).build();
     }
+
 
     // Antwortmodell für den Status-Rückgabewert
     public static class StatusResponse {
