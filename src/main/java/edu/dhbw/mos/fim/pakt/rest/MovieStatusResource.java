@@ -44,6 +44,7 @@ public class MovieStatusResource extends BasicRestCrudResource<MovieStatus, Movi
 
         List<MovieStatus> movies = movieStatusRepository.findByUidAndStatus(user, status);
 
+        // KI
         List<Map<String, Object>> result = movies.stream()
                 .map(movie -> {
                     Map<String, Object> map = new HashMap<>();

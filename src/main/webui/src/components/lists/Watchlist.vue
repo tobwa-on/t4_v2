@@ -67,6 +67,7 @@ const fetchMovieDetails = async () => {
     const movieDetailsPromises = movieData.map(async (movie) => {
       const response = await getMovieDetails(movie.movieId);
       return {
+        // KI (sortieren)
         ...response.data, // Details aus TMDB
         watchlistAt: new Date(movie.watchlistAt),
       };
